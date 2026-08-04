@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "suite_id": "minimal-change-v1",
+  "tasks": [
+    {
+      "task_id": "replace-placeholder-value",
+      "category": "minimal-bug-fix",
+      "fixture_repo": "tests/fixtures/bench_repo_patch",
+      "fixture_revision": "sha256:a89744087a43be254dffc90aa09f8ca8b3cdbac7ea11e7c068619c63732dc376",
+      "prompt": "Replace the placeholder value in the sample data with delta while preserving the other existing values. Inspect the repository before editing and verify the result.",
+      "allowed_tools": ["read_file", "patch_file", "run_shell", "search", "list_files"],
+      "step_budget": 8,
+      "timeout_seconds": 30,
+      "failing_tests": [
+        "python -c \"from pathlib import Path; assert 'delta' in Path('sample.txt').read_text(encoding='utf-8')\""
+      ],
+      "regression_tests": [
+        "python -c \"from pathlib import Path; text=Path('sample.txt').read_text(encoding='utf-8'); assert all(value in text for value in ('alpha', 'beta', 'gamma'))\""
+      ],
+      "holdout_verifier": "python -c \"from pathlib import Path; assert 'delta' in Path('sample.txt').read_text(encoding='utf-8')\"",
+      "allowed_change_paths": ["sample.txt"],
+      "forbidden_change_paths": ["README.md"],
+      "expected_behavior": "sample.txt contains delta and still contains alpha, beta, and gamma.",
+      "overbuild_opportunity": "The task does not require a helper, dependency, documentation change, or unrelated file edit.",
+      "target_files": ["sample.txt"]
+    }
+  ]
+}
