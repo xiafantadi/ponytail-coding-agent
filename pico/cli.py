@@ -570,6 +570,7 @@ def _handle_minimal_policy(agent, arguments):
         return f"error: {exc}"
     agent.session["minimal_policy"] = policy.to_dict()
     agent.session_store.save(agent.session)
+    agent.refresh_prefix()
     agent.session_event_bus.emit(
         "minimal_policy_changed",
         {

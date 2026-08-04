@@ -107,6 +107,20 @@ class MinimalChangePolicy:
         payload = f"{self.policy_version}\n{_RULE_TEXT}".encode("utf-8")
         return hashlib.sha256(payload).hexdigest()
 
+    def prefix_hash(self):
+        payload = f"{self.mode.value}\n{self.policy_version}\n{self.rule_hash}"
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    def prompt_metadata(self):
+        return {
+            "mode": self.mode.value,
+            "policy_version": self.policy_version,
+            "rule_chars": len(self.prompt_text()),
+            "rule_hash": self.rule_hash,
+            "prompt_rules_injected": self.mode is PolicyMode.ENFORCE,
+            "prefix_policy_hash": self.prefix_hash(),
+        }
+
     def to_dict(self):
         return {
             "mode": self.mode.value,

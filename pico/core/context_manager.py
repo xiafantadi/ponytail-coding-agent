@@ -243,9 +243,20 @@ class ContextManager:
                 rendered[section] = self._render_history_section(int(budget or 0), pressure=pressure)
             else:
                 raw = section_texts[section]
-                rendered_text = tail_clip(raw, int(budget)) if budget is not None else raw
+                rendered_text = self._render_section(raw, section, budget)
                 rendered[section] = SectionRender(raw=raw, budget=int(budget) if budget is not None else 0, rendered=rendered_text, details={})
         return rendered
+
+    def _render_section(self, raw, section, budget):
+        if budget is None or section != "prefix":
+            return tail_clip(raw, int(budget)) if budget is not None else raw
+        budget = int(budget)
+        policy = getattr(self.agent, "minimal_policy", None)
+        policy_text = policy().prompt_text() if callable(policy) else ""
+        if not policy_text or len(raw) <= budget:
+            return tail_clip(raw, budget)
+        prefix_budget = max(0, budget - len(policy_text) - 2)
+        return f"{tail_clip(raw, prefix_budget)}\n\n{policy_text}"[-budget:]
 
     def _prompt_pressure(self, prompt_chars):
         ratio = int(prompt_chars) / max(1, self.total_budget)

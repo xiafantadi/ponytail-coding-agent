@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 from ..features import memory as memorylib, skills as skillslib
+from ..features.minimal_policy import MinimalChangePolicy
 from ..features.sandbox import SandboxConfig, SandboxRunner
 from .compact import CompactManager
 from .context_manager import ContextManager
@@ -77,6 +78,7 @@ class PromptPrefix:
     workspace_fingerprint: str
     tool_signature: str
     built_at: str
+    minimal_policy_hash: str = ""
 
 
 class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
@@ -270,6 +272,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         runtime_mode = self.session.setdefault("runtime_mode", {"mode": "default"})
         if not isinstance(runtime_mode, dict):
             self.session["runtime_mode"] = {"mode": "default"}
+        self.session.setdefault("minimal_policy", MinimalChangePolicy().to_dict())
 
     def current_runtime_identity(self):
         return {
@@ -477,6 +480,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             risk = "approval required" if tool["risky"] else "safe"
             tool_lines.append(f"- {name}({fields}) [{risk}] {tool['description']}")
         tool_text = "\n".join(tool_lines)
+        minimal_policy_text = self.minimal_policy().prompt_text()
         examples = "\n".join(
             [
                 '<tool>{"name":"list_files","args":{"path":"."}}</tool>',
@@ -524,15 +528,28 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             {examples}
 
             {self.workspace.text()}
+
+            {minimal_policy_text}
             """
         ).strip()
+        minimal_policy_hash = self.minimal_policy_hash()
         return PromptPrefix(
             text=text,
-            hash=hashlib.sha256(text.encode("utf-8")).hexdigest(),
+            hash=hashlib.sha256(f"{text}\nminimal-policy:{minimal_policy_hash}".encode("utf-8")).hexdigest(),
             workspace_fingerprint=self.workspace.fingerprint(),
             tool_signature=self.tool_signature(),
             built_at=now(),
+            minimal_policy_hash=minimal_policy_hash,
         )
+
+    def minimal_policy(self):
+        return MinimalChangePolicy.from_dict(self.session.get("minimal_policy", {}))
+
+    def minimal_policy_hash(self):
+        return self.minimal_policy().prefix_hash()
+
+    def minimal_policy_metadata(self):
+        return self.minimal_policy().prompt_metadata()
 
     def _apply_prefix_state(self, prefix_state):
         self.prefix_state = prefix_state
@@ -543,6 +560,9 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         previous_workspace_fingerprint = getattr(
             getattr(self, "prefix_state", None), "workspace_fingerprint", None
         )
+        previous_policy_hash = getattr(
+            getattr(self, "prefix_state", None), "minimal_policy_hash", ""
+        )
 
         # 工作区事实相对稳定，所以这里按整体刷新；
         # 只有这些事实真的变化了，才重建完整 prefix。
@@ -551,12 +571,13 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         workspace_changed = (
             force or refreshed_workspace_fingerprint != previous_workspace_fingerprint
         )
+        policy_changed = force or self.minimal_policy_hash() != previous_policy_hash
         if workspace_changed:
             self.workspace = refreshed_workspace
 
         prefix_state = (
             self.build_prefix()
-            if workspace_changed or force or previous_hash is None
+            if workspace_changed or policy_changed or previous_hash is None
             else self.prefix_state
         )
         prefix_changed = force or previous_hash != prefix_state.hash
@@ -566,6 +587,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         self._last_prefix_refresh = {
             "workspace_changed": workspace_changed,
             "prefix_changed": prefix_changed,
+            "minimal_policy_changed": policy_changed,
         }
         return dict(self._last_prefix_refresh)
 

@@ -137,6 +137,7 @@ class ContextOrchestrator:
                 "tool_signature": agent.prefix_state.tool_signature,
                 "workspace_changed": refresh.get("workspace_changed", False),
                 "prefix_changed": refresh.get("prefix_changed", False),
+                "minimal_policy_changed": refresh.get("minimal_policy_changed", False),
                 "prompt_cache_supported": bool(
                     getattr(agent.model_client, "supports_prompt_cache", False)
                 ),
@@ -151,6 +152,9 @@ class ContextOrchestrator:
             }
         )
         metadata.update(agent.detected_secret_env_summary())
+        policy_metadata = getattr(agent, "minimal_policy_metadata", None)
+        if callable(policy_metadata):
+            metadata["minimal_policy"] = policy_metadata()
         metadata["context_orchestrator"] = self._orchestrator_metadata(
             metadata, plan, summary, should_compact, skip_reason, compact_metrics
         )
