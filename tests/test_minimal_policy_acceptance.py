@@ -201,3 +201,26 @@ def test_policy_evidence_preserves_null_for_unavailable_provider_usage(tmp_path)
     assert metrics["cached_input_tokens"] is None
     assert metrics["output_tokens"] is None
     assert metrics["reasoning_tokens"] is None
+
+
+def test_minimality_audit_is_reproducible_report_evidence(tmp_path):
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool name="write_file" path="notes.txt"><content>hello\n</content></tool>',
+            "<final>Done.</final>",
+        ],
+    )
+
+    assert agent.ask("Create notes.txt") == "Done."
+
+    report = json.loads(
+        agent.run_store.report_path(agent.current_task_state).read_text(encoding="utf-8")
+    )
+    audit = report["evidence_summaries"]["minimality_audit"]
+
+    assert audit["schema_version"] == "pico.minimality_audit.v1"
+    assert audit["changed_paths"] == ["notes.txt"]
+    assert audit["changed_files"] == 1
+    assert audit["scope_status"] == "not_configured"
+    assert audit["blocking_findings"] == []

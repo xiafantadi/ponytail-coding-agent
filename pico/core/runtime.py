@@ -871,7 +871,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             "status": task_state.status,
             "runtime_completion": task_state.status,
             "verification_status": verification_status,
-            "verified_success": task_state.status == "completed" and verification_status == "passed",
+            "verified_success": task_state.status == "completed" and verification_status == "passed" and not (task_state.evidence_summaries.get("minimality_audit", {}) or {}).get("blocking_findings"),
             "stop_reason": task_state.stop_reason,
             "final_answer": task_state.final_answer,
             "tool_steps": task_state.tool_steps,

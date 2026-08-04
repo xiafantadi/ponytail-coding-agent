@@ -84,6 +84,7 @@ class Engine:
         agent.current_task_state = task_state
         agent.current_turn_id = task_state.task_id
         agent.current_run_id = task_state.run_id
+        agent._run_git_clean = agent.workspace.status == "clean"
         agent.current_run_dir = agent.run_store.start_run(task_state)
         agent.session_event_bus.emit(
             "turn_started",

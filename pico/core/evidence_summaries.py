@@ -49,6 +49,7 @@ def update_evidence_summaries(summaries, event, changed_paths=None):
         )
     elif event.get("event") == "minimality_audit_completed":
         summaries["minimality_metrics"] = dict(event.get("minimality_metrics", {}) or {})
+        summaries["minimality_audit"] = dict(event.get("minimality_audit", {}) or {})
     return summaries
 
 
