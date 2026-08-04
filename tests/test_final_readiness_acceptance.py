@@ -1,10 +1,9 @@
 """Acceptance tests for final-readiness behavior inside real engine turns."""
 
 import json
-import shlex
-import sys
 
 from pico import Pico, SessionStore, WorkspaceContext
+from pico.core.shell_command import python_shell_command
 from pico.testing import ScriptedModelClient
 
 
@@ -116,12 +115,10 @@ def test_strict_final_readiness_blocks_unverified_workspace_changes(tmp_path):
 
 
 def test_strict_final_readiness_blocks_partial_success_workspace_changes(tmp_path):
-    command = (
-        f"{shlex.quote(sys.executable)} -c "
-        + shlex.quote(
-            "from pathlib import Path; Path('notes/result.txt').parent.mkdir(exist_ok=True); "
-            "Path('notes/result.txt').write_text('partial\\n'); raise SystemExit(1)"
-        )
+    command = python_shell_command(
+        "-c",
+        "from pathlib import Path; Path('notes/result.txt').parent.mkdir(exist_ok=True); "
+        "Path('notes/result.txt').write_text('partial\\n'); raise SystemExit(1)",
     )
     agent = build_agent(
         tmp_path,

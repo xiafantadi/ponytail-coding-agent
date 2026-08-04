@@ -1,6 +1,10 @@
 """Verification evidence reducer for shell-command tool traces."""
 
-import shlex
+import ntpath
+import posixpath
+import re
+
+from .shell_command import split_shell_args
 
 VERIFICATION_SIGNAL_SCHEMA = "pico.verification_signal.v1"
 
@@ -38,7 +42,7 @@ def reduce_verification_signal(previous, event, changed_paths):
     return signal
 def classify_verification_command(command):
     try:
-        tokens = shlex.split(str(command))
+        tokens = split_shell_args(command)
     except ValueError:
         tokens = str(command).split()
     tokens = [token.lower() for token in tokens]
@@ -48,7 +52,7 @@ def classify_verification_command(command):
         while len(tokens) > 2 and tokens[2].startswith("-"):
             tokens = tokens[:2] + tokens[3:]
         tokens = tokens[2:]
-    python_cmd = tokens[0].rsplit("/", 1)[-1]
+    python_cmd = ntpath.basename(posixpath.basename(tokens[0]))
     if len(tokens) > 2 and _is_python_command(python_cmd) and tokens[1] == "-m":
         return {"pytest": "test", "compileall": "compile"}.get(tokens[2], "")
     if tokens[0] in {"pytest", "tox"}:
@@ -71,5 +75,4 @@ def _js_command_class(tokens):
         return "test" if tokens[2] == "test" else "build"
     return "build" if tokens[1] == "build" else ""
 def _is_python_command(command):
-    suffix = command.removeprefix("python3.")
-    return command in {"python", "python3"} or (suffix != command and suffix.replace(".", "").isdigit())
+    return bool(re.fullmatch(r"python(?:3(?:\.\d+)?)?(?:\.exe)?", command))

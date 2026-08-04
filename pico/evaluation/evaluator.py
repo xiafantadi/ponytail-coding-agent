@@ -1,10 +1,8 @@
 import hashlib
 import json
 import locale as locale_module
-import shlex
 import shutil
 import subprocess
-import sys
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -16,6 +14,7 @@ from ..core.runtime import Pico, SessionStore
 from ..core.run_store import RunStore
 from ..core.task_state import STOP_REASON_FINAL_ANSWER_RETURNED
 from ..core.workspace import WorkspaceContext
+from .verifier import run_verifier
 
 BENCHMARK_SCHEMA_VERSION = 1
 DEFAULT_BENCHMARK_PATH = Path("benchmarks/coding_tasks.json")
@@ -137,20 +136,6 @@ def _current_locale():
 
 def _now_in_timezone(timezone_name):
     return datetime.now(ZoneInfo(timezone_name)).strftime("%Y-%m-%dT%H:%M:%S%z")
-
-
-def _run_verifier(command, cwd):
-    args = shlex.split(str(command), posix=True)
-    if not args:
-        raise ValueError("verifier command must not be empty")
-    if args[0] in {"python", "python3"}:
-        args[0] = sys.executable
-    return subprocess.run(
-        args,
-        cwd=cwd,
-        capture_output=True,
-        text=True,
-    )
 
 
 def _artifact_path_for_task(task):
@@ -509,7 +494,7 @@ class BenchmarkEvaluator:
         expected_artifact_exists = artifact_file.exists()
         artifact_digest = _digest_file(artifact_file) if expected_artifact_exists else ""
 
-        verifier = _run_verifier(task["verifier"], cwd=fixture_copy_root)
+        verifier = run_verifier(task["verifier"], cwd=fixture_copy_root)
 
         within_budget = task_state.tool_steps <= int(task["step_budget"])
         verifier_passed = verifier.returncode == 0

@@ -4,6 +4,21 @@ import os
 
 SENSITIVE_ENV_NAME_MARKERS = ("API_KEY", "TOKEN", "SECRET", "PASSWORD")
 REDACTED_VALUE = "<redacted>"
+_HOST_SHELL_ENV = {
+    name: value
+    for name in (
+        "COMSPEC",
+        "HOME",
+        "PATH",
+        "PATHEXT",
+        "SYSTEMDRIVE",
+        "SYSTEMROOT",
+        "TEMP",
+        "TMP",
+        "WINDIR",
+    )
+    if (value := os.environ.get(name))
+}
 
 
 class RuntimeSecretsMixin:
@@ -54,8 +69,10 @@ class RuntimeSecretsMixin:
         return value
 
     def shell_env(self):
-        env = {name: os.environ[name] for name in self.shell_env_allowlist if name in os.environ}
+        env = {}
+        for name in self.shell_env_allowlist:
+            value = os.environ.get(name) or _HOST_SHELL_ENV.get(name)
+            if value:
+                env[name] = value
         env["PWD"] = str(self.root)
-        if "PATH" not in env and os.environ.get("PATH"):
-            env["PATH"] = os.environ["PATH"]
         return env

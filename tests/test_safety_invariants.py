@@ -1,12 +1,11 @@
 import os
-import shlex
-import sys
 from unittest.mock import patch
 
 from pico.testing import ScriptedModelClient
 from pico import Pico, SessionStore, WorkspaceContext
 from pico import cli as pico_cli
 from pico.core.task_state import TaskState
+from pico.core.shell_command import python_shell_command
 
 
 def build_workspace(tmp_path):
@@ -148,7 +147,7 @@ def test_run_shell_uses_allowlisted_environment_only(tmp_path):
     secret = "shh-allowlist-secret"
     agent = build_agent(tmp_path, [], approval_policy="auto")
     script = 'import os; print(os.getenv("MCA_ALLOWLIST_SECRET", "missing"))'
-    command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}"
+    command = python_shell_command("-c", script)
 
     with patch.dict(os.environ, {"MCA_ALLOWLIST_SECRET": secret}, clear=False):
         result = agent.run_tool("run_shell", {"command": command, "timeout": 20})

@@ -83,3 +83,15 @@ def test_runtime_reminder_records_failed_tool_without_breaking_the_turn(tmp_path
     assert reminders[-1]["status"] == "rejected"
     assert reminders[-1]["message"]
     assert json.loads((agent.current_run_dir / "task_state.json").read_text(encoding="utf-8"))["runtime_reminders"] == reminders
+
+
+def test_report_distinguishes_runtime_completion_from_unverified_success(tmp_path):
+    agent = build_agent(tmp_path, ["<final>Done without a verifier.</final>"])
+
+    assert agent.ask("finish without changing files") == "Done without a verifier."
+
+    report = json.loads((agent.current_run_dir / "report.json").read_text(encoding="utf-8"))
+    assert report["status"] == "completed"
+    assert report["runtime_completion"] == "completed"
+    assert report["verification_status"] == "unknown"
+    assert report["verified_success"] is False

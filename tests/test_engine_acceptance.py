@@ -1,11 +1,10 @@
 """End-to-end engine acceptance tests for user-visible turn behavior."""
 
 import json
-import shlex
-import sys
 
 from pico.testing import ScriptedModelClient
 from pico import Pico, SessionStore, WorkspaceContext
+from pico.core.shell_command import python_shell_command
 from pico.providers import ProviderError
 
 
@@ -170,7 +169,7 @@ def test_worker_notification_drained_during_turn_is_streamed(tmp_path):
 
 
 def test_verification_signal_passes_after_workspace_verification(tmp_path):
-    command = f"{shlex.quote(sys.executable)} -m compileall notes"
+    command = python_shell_command("-m", "compileall", "notes")
     agent = build_agent(
         tmp_path,
         [
@@ -196,4 +195,7 @@ def test_verification_signal_passes_after_workspace_verification(tmp_path):
     assert signal["changed_paths_present"] is True
     assert signal["covers_changed_paths"] is False
     assert signal["coverage_confidence"] == "unknown"
+    assert report["runtime_completion"] == "completed"
+    assert report["verification_status"] == "passed"
+    assert report["verified_success"] is True
     assert "notes/result.py" in signal["changed_paths"]

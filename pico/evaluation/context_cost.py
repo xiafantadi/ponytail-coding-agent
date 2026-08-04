@@ -5,10 +5,10 @@ from __future__ import annotations
 import argparse
 import concurrent.futures
 import csv
+import hashlib
 import json
 import shutil
 import statistics
-import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import MethodType
@@ -18,6 +18,7 @@ from pico.config import default_max_tokens_for_provider, resolve_provider_config
 from pico.core.run_store import RunStore
 from pico.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient
 from pico.testing import ScriptedModelClient
+from pico.evaluation.verifier import run_verifier
 
 
 @dataclass(frozen=True)
@@ -93,6 +94,12 @@ EXPERIMENT_VARIANTS = {
     },
 }
 
+_VARIANT_RUN_SLUGS = {
+    "no_context_reduction": "base",
+    "full_orchestrator": "orch",
+    "full_orchestrator_with_llm_handoff": "handoff",
+}
+
 
 def compute_cost_usd(usage: CostUsage, pricing: ProviderPricing) -> float:
     return (
@@ -100,6 +107,14 @@ def compute_cost_usd(usage: CostUsage, pricing: ProviderPricing) -> float:
         + int(usage.cached_tokens) * pricing.cached_input_per_1m
         + int(usage.output_tokens) * pricing.output_per_1m
     ) / 1_000_000
+
+
+def _long_session_run_key(task_id, variant, repeat):
+    identity = f"{task_id}|{variant}|{repeat}"
+    digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:8]
+    task_slug = "".join(char if char.isalnum() else "-" for char in str(task_id))[:20]
+    variant_slug = _VARIANT_RUN_SLUGS.get(variant, "variant")
+    return f"{task_slug}-{variant_slug}-{repeat}-{digest}"
 
 
 def extract_usage_from_artifacts(
@@ -816,7 +831,8 @@ def _run_long_session_task(
     pricing,
 ):
     fixture_source = Path(task["fixture_repo"]).resolve()
-    workspace = Path(output_dir) / "runs" / task["id"] / variant / str(repeat) / fixture_source.name
+    run_key = _long_session_run_key(task["id"], variant, repeat)
+    workspace = Path(output_dir) / "runs" / run_key / "repo"
     if workspace.exists():
         shutil.rmtree(workspace)
     workspace.parent.mkdir(parents=True, exist_ok=True)
@@ -857,14 +873,7 @@ def _run_long_session_task(
             pass
     report_path = agent.current_run_dir / "report.json" if agent.current_run_dir else None
     trace_path = agent.current_run_dir / "trace.jsonl" if agent.current_run_dir else None
-    verifier = subprocess.run(
-        task["verifier"],
-        cwd=workspace,
-        shell=True,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
+    verifier = run_verifier(task["verifier"], cwd=workspace, timeout=30)
     verification_status = "passed" if verifier.returncode == 0 else "failed"
     return extract_usage_from_artifacts(
         report_path,

@@ -261,9 +261,10 @@ def build_dream_report(before_notes, after_notes):
 
 def write_dream_report(memory_dir, report, iso_ts=None):
     iso_ts = iso_ts or datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    filename_timestamp = str(iso_ts).replace(":", "-")
     reports_dir = Path(memory_dir) / "dream_reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
-    path = reports_dir / f"{iso_ts}.json"
+    path = reports_dir / f"{filename_timestamp}.json"
     path.write_text(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     return path
 
@@ -1093,8 +1094,10 @@ def workspace_fingerprint(workspace_root):
         git_root = subprocess.check_output(
             ["git", "-C", root, "rev-parse", "--show-toplevel"],
             stderr=subprocess.DEVNULL,
+            text=True,
         ).strip()
-        fingerprint = hashlib.sha256(git_root).hexdigest()[:12]
+        canonical_git_root = str(Path(git_root).resolve())
+        fingerprint = hashlib.sha256(canonical_git_root.encode("utf-8")).hexdigest()[:12]
     except Exception:
         fingerprint = hashlib.sha256(root.encode("utf-8")).hexdigest()[:12]
     _WORKSPACE_FINGERPRINT_CACHE[root] = fingerprint

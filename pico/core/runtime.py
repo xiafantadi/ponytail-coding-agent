@@ -41,12 +41,14 @@ from ..tools import registry as toolkit
 from .workspace import MAX_HISTORY, WorkspaceContext, clip, now
 
 DEFAULT_SHELL_ENV_ALLOWLIST = (
+    "COMSPEC",
     "HOME",
     "LANG",
     "LC_ALL",
     "LC_CTYPE",
     "LOGNAME",
     "PATH",
+    "PATHEXT",
     "PWD",
     "SHELL",
     "TERM",
@@ -54,6 +56,9 @@ DEFAULT_SHELL_ENV_ALLOWLIST = (
     "TMP",
     "TEMP",
     "USER",
+    "SYSTEMDRIVE",
+    "SYSTEMROOT",
+    "WINDIR",
 )
 DEFAULT_FEATURE_FLAGS = dict(memory=True, relevant_memory=True, context_reduction=True, prompt_cache=True)
 CHECKPOINT_SCHEMA_VERSION = "phase1-v1"
@@ -830,10 +835,15 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
 
     def build_report(self, task_state):
         # report 是一次运行的最终摘要；
+        verification_signal = dict(task_state.evidence_summaries.get("verification_signal", {}) or {})
+        verification_status = str(verification_signal.get("state", "unknown"))
         return {
             "run_id": task_state.run_id,
             "task_id": task_state.task_id,
             "status": task_state.status,
+            "runtime_completion": task_state.status,
+            "verification_status": verification_status,
+            "verified_success": task_state.status == "completed" and verification_status == "passed",
             "stop_reason": task_state.stop_reason,
             "final_answer": task_state.final_answer,
             "tool_steps": task_state.tool_steps,

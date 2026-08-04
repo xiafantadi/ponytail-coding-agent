@@ -4,6 +4,8 @@ import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from pico import cli
 from pico.evaluation.harnessbench import build_adapter_metadata, write_adapter_metadata
 from pico.testing import ScriptedModelClient
@@ -202,6 +204,7 @@ def test_harnessbench_metadata_writer_creates_manifest(tmp_path):
     assert "pico_trace_path" in written["pico_evidence_missing"]
 
 
+@pytest.mark.skipif(os.name == "nt", reason="bench-pico-v3.sh is a POSIX Bash adapter")
 def test_bench_script_env_max_steps_overrides_yaml_arg(tmp_path):
     fake_bin = tmp_path / "bin"
     fake_bin.mkdir()

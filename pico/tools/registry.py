@@ -60,6 +60,7 @@ from .schemas import (
     WriteFileArgs,
     first_error_message,
 )
+from pico.core.shell_command import run_shell_process
 
 _TOOL_SCHEMAS = {
     "list_files": ListFilesArgs,
@@ -208,11 +209,11 @@ def tool_list_files(agent, args):
     lines = []
     for entry in entries[:200]:
         kind = "[D]" if entry.is_dir() else "[F]"
-        lines.append(f"{kind} {entry.relative_to(agent.root)}")
+        lines.append(f"{kind} {entry.relative_to(agent.root).as_posix()}")
         if entry.is_dir():
             for child in _visible_entries(entry)[:12]:
                 child_kind = "[D]" if child.is_dir() else "[F]"
-                lines.append(f"  {child_kind} {child.relative_to(agent.root)}")
+                lines.append(f"  {child_kind} {child.relative_to(agent.root).as_posix()}")
     return "\n".join(lines) or "(empty)"
 
 def _visible_entries(path):
@@ -286,10 +287,9 @@ def tool_run_shell(agent, args):
         raise ValueError("timeout must be in [1, 120]")
     runner = getattr(agent, "sandbox_runner", None)
     if runner is None:
-        result = subprocess.run(
+        result = run_shell_process(
             command,
             cwd=agent.root,
-            shell=True,
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -320,7 +320,7 @@ def tool_write_file(agent, args):
     content = str(args["content"])
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
-    return f"wrote {path.relative_to(agent.root)} ({len(content)} chars)"
+    return f"wrote {path.relative_to(agent.root).as_posix()} ({len(content)} chars)"
 
 
 def tool_patch_file(agent, args):
@@ -337,7 +337,7 @@ def tool_patch_file(agent, args):
     if count != 1:
         raise ValueError(f"old_text must occur exactly once, found {count}")
     path.write_text(text.replace(old_text, str(args["new_text"]), 1), encoding="utf-8")
-    return f"patched {path.relative_to(agent.root)}"
+    return f"patched {path.relative_to(agent.root).as_posix()}"
 
 
 _TOOL_RUNNERS = {

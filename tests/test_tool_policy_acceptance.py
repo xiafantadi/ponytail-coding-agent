@@ -1,6 +1,7 @@
 """Acceptance tests for tool policy decisions and governance evidence."""
 
 import json
+import subprocess
 
 from pico.testing import ScriptedModelClient
 from pico import Pico, SessionStore, WorkspaceContext
@@ -255,6 +256,12 @@ def test_shell_policy_allows_head_tail_grep_after_pipe(tmp_path):
     """`pip install ... 2>&1 | tail -5` 和 `git log | head -10` 是合法的输出管理，
     policy 不应该把它们当作 workspace search 拒绝。"""
     agent = build_agent(tmp_path)
+    agent.sandbox_runner.run = lambda command, **kwargs: subprocess.CompletedProcess(
+        args=command,
+        returncode=0,
+        stdout="policy allowed\n",
+        stderr="",
+    )
 
     for command in (
         "echo hello && echo world | tail -1",

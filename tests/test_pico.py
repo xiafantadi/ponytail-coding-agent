@@ -20,6 +20,7 @@ from pico import (
     build_welcome,
 )
 from pico.providers import ProviderError
+from pico.core.shell_command import python_shell_command
 
 
 def build_workspace(tmp_path):
@@ -1024,7 +1025,9 @@ def test_trace_and_report_redact_secret_env_values(tmp_path):
         agent = build_agent(
             tmp_path,
             [
-                '<tool>{"name":"run_shell","args":{"command":"printf \'%s\' \'sk-test-secret-123\'","timeout":20}}</tool>',
+                '<tool>{"name":"run_shell","args":{"command":'
+                + json.dumps(python_shell_command("-c", f"print({secret!r}, end='')"))
+                + ',"timeout":20}}</tool>',
                 "<final>Masked.</final>",
             ],
         )

@@ -7,6 +7,7 @@ files, so recovery state and review evidence stay separate.
 
 import json
 import tempfile
+import threading
 from pathlib import Path
 
 
@@ -19,6 +20,7 @@ def _run_id(value):
 class RunStore:
     def __init__(self, root):
         self.root = Path(root)
+        self._write_lock = threading.RLock()
         self.root.mkdir(parents=True, exist_ok=True)
 
     def run_dir(self, run_id):
@@ -45,38 +47,42 @@ class RunStore:
         return run_dir
 
     def write_task_state(self, task_state):
-        path = self.task_state_path(task_state)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self._write_json_atomic(path, task_state.to_dict())
+        with self._write_lock:
+            path = self.task_state_path(task_state)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self._write_json_atomic(path, task_state.to_dict())
         return path
 
     def append_trace(self, task_state, event):
-        path = self.trace_path(task_state)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # trace 采用 jsonl 追加写入，原因是 agent 运行过程是流式事件序列，
-        # 逐条落盘比“最后一次性写整份 trace”更稳，也更适合调试。
-        with path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(event, sort_keys=True, ensure_ascii=True))
-            handle.write("\n")
+        with self._write_lock:
+            path = self.trace_path(task_state)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            # trace 采用 jsonl 追加写入，原因是 agent 运行过程是流式事件序列，
+            # 逐条落盘比“最后一次性写整份 trace”更稳，也更适合调试。
+            with path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(event, sort_keys=True, ensure_ascii=True))
+                handle.write("\n")
         return path
 
     def write_text_artifact(self, task_state, stem, content):
-        directory = self.artifacts_dir(task_state)
-        directory.mkdir(parents=True, exist_ok=True)
-        index = len(list(directory.glob(f"{stem}-*.txt"))) + 1
-        path = directory / f"{stem}-{index:03d}.txt"
-        path.write_text(str(content), encoding="utf-8")
+        with self._write_lock:
+            directory = self.artifacts_dir(task_state)
+            directory.mkdir(parents=True, exist_ok=True)
+            index = len(list(directory.glob(f"{stem}-*.txt"))) + 1
+            path = directory / f"{stem}-{index:03d}.txt"
+            path.write_text(str(content), encoding="utf-8")
         return path
 
     def write_binary_artifact(self, task_state, stem, content, suffix):
-        directory = self.artifacts_dir(task_state)
-        directory.mkdir(parents=True, exist_ok=True)
-        suffix = str(suffix or "").strip()
-        if not suffix.startswith("."):
-            suffix = "." + suffix
-        index = len(list(directory.glob(f"{stem}-*{suffix}"))) + 1
-        path = directory / f"{stem}-{index:03d}{suffix}"
-        path.write_bytes(bytes(content))
+        with self._write_lock:
+            directory = self.artifacts_dir(task_state)
+            directory.mkdir(parents=True, exist_ok=True)
+            suffix = str(suffix or "").strip()
+            if not suffix.startswith("."):
+                suffix = "." + suffix
+            index = len(list(directory.glob(f"{stem}-*{suffix}"))) + 1
+            path = directory / f"{stem}-{index:03d}{suffix}"
+            path.write_bytes(bytes(content))
         return path
 
     def artifact_ref(self, task_state, path):
@@ -84,9 +90,10 @@ class RunStore:
         return path.relative_to(base).as_posix()
 
     def write_report(self, task_state, report):
-        path = self.report_path(task_state)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        self._write_json_atomic(path, report)
+        with self._write_lock:
+            path = self.report_path(task_state)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self._write_json_atomic(path, report)
         return path
 
     def load_task_state(self, task_id):

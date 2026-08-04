@@ -1,7 +1,42 @@
 import json
+import threading
+import time
 
 from pico.core.run_store import RunStore
 from pico.core.task_state import STOP_REASON_FINAL_ANSWER_RETURNED, TaskState
+
+
+def test_run_store_serializes_writes_across_threads(tmp_path, monkeypatch):
+    store = RunStore(tmp_path / ".pico" / "runs")
+    state = TaskState.create(task_id="concurrent", user_request="exercise concurrent writes")
+    active_writers = 0
+    overlap_detected = False
+    state_lock = threading.Lock()
+    original = store._write_json_atomic
+
+    def observed_write(path, payload):
+        nonlocal active_writers, overlap_detected
+        with state_lock:
+            active_writers += 1
+            overlap_detected = overlap_detected or active_writers > 1
+        time.sleep(0.02)
+        try:
+            original(path, payload)
+        finally:
+            with state_lock:
+                active_writers -= 1
+
+    monkeypatch.setattr(store, "_write_json_atomic", observed_write)
+    task_thread = threading.Thread(target=store.write_task_state, args=(state,))
+    report_thread = threading.Thread(target=store.write_report, args=(state, {"status": "ok"}))
+
+    task_thread.start()
+    report_thread.start()
+    task_thread.join()
+    report_thread.join()
+
+    assert overlap_detected is False
+    assert store.load_report(state)["status"] == "ok"
 
 
 def test_run_store_creates_run_directory_and_state_file(tmp_path):

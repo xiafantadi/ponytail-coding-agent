@@ -263,9 +263,9 @@ def test_llm_handoff_benchmark_cli_scripted_smoke(tmp_path):
         cwd=ROOT,
         capture_output=True,
         text=True,
-        check=True,
     )
 
+    assert result.returncode == 0, result.stderr
     assert f"Results: {output_dir / 'results.json'}" in result.stdout
     assert (output_dir / "results.json").is_file()
     assert "## LLM Handoff vs Deterministic Comparison" in (

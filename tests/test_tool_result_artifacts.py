@@ -2,12 +2,11 @@
 
 import hashlib
 import json
-import shlex
-import sys
 
 from pico import Pico, SessionStore, WorkspaceContext
 from pico.core.context_manager import ContextManager
 from pico.core.run_store import RunStore
+from pico.core.shell_command import python_shell_command
 from pico.testing import ScriptedModelClient
 from pico.tools.base import RegisteredTool
 
@@ -31,7 +30,7 @@ def read_jsonl(path):
 
 def test_long_shell_output_is_clipped_and_full_output_is_saved_as_run_artifact(tmp_path):
     script = "print('x'*6000)"
-    command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}"
+    command = python_shell_command("-c", script)
     agent = build_agent(
         tmp_path,
         [
@@ -207,7 +206,7 @@ def test_microcompact_keeps_old_tool_result_tied_to_current_changed_path(tmp_pat
 
 def test_microcompact_keeps_latest_failed_tool_result_visible(tmp_path):
     script = "for i in range(140): print(f'FAIL-{i}')\nraise SystemExit(1)"
-    command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}"
+    command = python_shell_command("-c", script)
     agent = build_agent(
         tmp_path,
         [
@@ -237,7 +236,7 @@ def test_microcompact_keeps_latest_workspace_changing_tool_result_visible(tmp_pa
             "for i in range(140): print(f'CHANGED-{i}')",
         ]
     )
-    command = f"{shlex.quote(sys.executable)} -c {shlex.quote(script)}"
+    command = python_shell_command("-c", script)
     agent = build_agent(
         tmp_path,
         [
