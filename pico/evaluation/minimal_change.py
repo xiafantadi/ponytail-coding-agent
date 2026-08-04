@@ -19,6 +19,21 @@ MINIMAL_CHANGE_SCHEMA_VERSION = 1
 MINIMAL_CHANGE_STATUS = "valid"
 INVALID_TASK_STATUS = "invalid_task"
 _TRANSIENT_FIXTURE_DIRS = {".git", ".pico", ".pytest_cache", "__pycache__"}
+FAILURE_CATEGORIES = (
+    "invalid_task",
+    "model_error",
+    "tool_error",
+    "permission_denied",
+    "budget_exceeded",
+    "timeout",
+    "patch_not_applied",
+    "fail2pass_failed",
+    "pass2pass_regression",
+    "holdout_verifier_failed",
+    "scope_violation",
+    "missing_usage",
+    "infrastructure_error",
+)
 
 REQUIRED_TASK_KEYS = (
     "task_id",
@@ -277,3 +292,146 @@ def task_for_model(task: dict) -> dict:
         "status",
     }
     return {key: value for key, value in task.items() if key not in private_keys}
+
+
+def run_verification_suite(commands, *, cwd, timeout=30, artifact_dir=None, label="check"):
+    """Run each command independently and retain its raw evidence."""
+    results = []
+    artifact_dir = Path(artifact_dir) if artifact_dir is not None else None
+    if artifact_dir is not None:
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+
+    for index, command in enumerate(commands):
+        stdout = ""
+        stderr = ""
+        returncode = None
+        error = None
+        try:
+            completed = run_verifier(command, cwd=cwd, timeout=timeout)
+            returncode = completed.returncode
+            stdout = completed.stdout or ""
+            stderr = completed.stderr or ""
+        except subprocess.TimeoutExpired as exc:
+            error = str(exc)
+        except (OSError, ValueError) as exc:
+            error = str(exc)
+
+        item = {
+            "command": command,
+            "returncode": returncode,
+            "passed": returncode == 0,
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+        if error:
+            item["error"] = error
+        if artifact_dir is not None:
+            stdout_path = artifact_dir / f"{label}-{index}-stdout.txt"
+            stderr_path = artifact_dir / f"{label}-{index}-stderr.txt"
+            stdout_path.write_text(stdout, encoding="utf-8")
+            stderr_path.write_text(stderr or error or "", encoding="utf-8")
+            item["stdout_path"] = str(stdout_path)
+            item["stderr_path"] = str(stderr_path)
+        results.append(item)
+
+    passed_count = sum(1 for item in results if item["passed"])
+    return {
+        "passed": passed_count == len(results) and bool(results),
+        "passed_count": passed_count,
+        "failed_count": len(results) - passed_count,
+        "total": len(results),
+        "results": results,
+    }
+
+
+def evaluate_minimal_change_result(
+    task,
+    *,
+    fail2pass,
+    pass2pass,
+    holdout_verifier,
+    task_status="valid",
+    within_budget=True,
+    patch_applied=True,
+    scope_violation=False,
+    usage_present=True,
+    usage_required=False,
+    runtime_failure=None,
+    artifact_paths=None,
+    usage=None,
+):
+    """Build a result row from independent verification evidence."""
+    failure_category = None
+    if task_status != MINIMAL_CHANGE_STATUS:
+        failure_category = INVALID_TASK_STATUS
+    elif runtime_failure in FAILURE_CATEGORIES:
+        failure_category = runtime_failure
+    elif scope_violation:
+        failure_category = "scope_violation"
+    elif not within_budget:
+        failure_category = "budget_exceeded"
+    elif not patch_applied:
+        failure_category = "patch_not_applied"
+    elif not fail2pass["passed"]:
+        failure_category = "fail2pass_failed"
+    elif not pass2pass["passed"]:
+        failure_category = "pass2pass_regression"
+    elif not holdout_verifier["passed"]:
+        failure_category = "holdout_verifier_failed"
+    elif usage_required and not usage_present:
+        failure_category = "missing_usage"
+
+    holdout_row = (holdout_verifier.get("results") or [{}])[0]
+    artifact_paths = dict(artifact_paths or {})
+    return {
+        "task_id": task["task_id"],
+        "status": "pass" if failure_category is None else "fail",
+        "passed": failure_category is None,
+        "fail2pass_passed": fail2pass["passed"],
+        "fail2pass_total": fail2pass["total"],
+        "fail2pass_count": fail2pass["passed_count"],
+        "pass2pass_passed": pass2pass["passed"],
+        "pass2pass_total": pass2pass["total"],
+        "pass2pass_count": pass2pass["passed_count"],
+        "holdout_verifier_passed": holdout_verifier["passed"],
+        "verifier_exit_code": holdout_row.get("returncode"),
+        "verifier_stdout_path": holdout_row.get("stdout_path"),
+        "verifier_stderr_path": holdout_row.get("stderr_path"),
+        "failure_category": failure_category,
+        "patch_path": artifact_paths.get("patch"),
+        "trace_path": artifact_paths.get("trace"),
+        "report_path": artifact_paths.get("report"),
+        "usage": usage,
+    }
+
+
+def summarize_minimal_change_results(rows):
+    """Aggregate result rows without dropping failed tasks."""
+    rows = list(rows)
+    total = len(rows)
+    passed = sum(1 for row in rows if row.get("passed") or row.get("status") == "pass")
+    failure_category_counts = {}
+    for row in rows:
+        category = row.get("failure_category")
+        if category:
+            failure_category_counts[category] = failure_category_counts.get(category, 0) + 1
+
+    def rate(count):
+        return count / total if total else 0.0
+
+    fail2pass = sum(1 for row in rows if row.get("fail2pass_passed") is True)
+    pass2pass = sum(1 for row in rows if row.get("pass2pass_passed") is True)
+    holdout = sum(1 for row in rows if row.get("holdout_verifier_passed") is True)
+    return {
+        "total_tasks": total,
+        "passed": passed,
+        "failed": total - passed,
+        "pass_rate": rate(passed),
+        "fail2pass_passed": fail2pass,
+        "fail2pass_pass_rate": rate(fail2pass),
+        "pass2pass_passed": pass2pass,
+        "pass2pass_pass_rate": rate(pass2pass),
+        "holdout_verifier_passed": holdout,
+        "holdout_verifier_pass_rate": rate(holdout),
+        "failure_category_counts": dict(sorted(failure_category_counts.items())),
+    }
