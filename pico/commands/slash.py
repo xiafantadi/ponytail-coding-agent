@@ -22,6 +22,8 @@ SLASH_COMMANDS: tuple[SlashCommand, ...] = (
     SlashCommand("dream", "/dream", "Consolidate durable memory."),
     SlashCommand("history", "/history", "List saved sessions."),
     SlashCommand("memory", "/memory", "Show durable memory index."),
+    SlashCommand("minimal", "/minimal [off|observe|enforce]", "Show or set minimal-change policy."),
+    SlashCommand("minimal-review", "/minimal-review [focus]", "Review the current diff for minimal changes."),
     SlashCommand("mode", "/mode", "Show runtime mode."),
     SlashCommand("model", "/model [name]", "Show or switch the current model."),
     SlashCommand("plan", "/plan <topic>", "Enter plan mode."),

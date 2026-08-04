@@ -22,6 +22,7 @@ from .config import (
     resolve_project_sandbox_config,
 )
 from .features import memory as memorylib
+from .features.minimal_policy import MinimalChangePolicy
 from .features import skills as skillslib
 from .features.skills_runtime import invoke_skill
 from .providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient
@@ -460,6 +461,10 @@ def handle_repl_command(agent, user_input):
         return True, False, agent.run_dream()
     if user_input == "/skills":
         return True, False, skillslib.render_skills_list(agent.skills)
+    if command_name == "minimal":
+        return True, False, _handle_minimal_policy(agent, command_args)
+    if command_name == "minimal-review":
+        return True, False, invoke_skill(agent, "minimal-review", command_args)
     if user_input == "/plan" or user_input.startswith("/plan "):
         _, _, raw_topic = user_input.partition(" ")
         topic = raw_topic.strip()
@@ -534,6 +539,48 @@ def _format_mode_status(agent):
     if plan_path:
         lines.append(f"plan path: {plan_path}")
     return "\n".join(lines)
+
+
+def _minimal_policy_for_agent(agent):
+    return MinimalChangePolicy.from_dict(agent.session.get("minimal_policy", {}))
+
+
+def _format_minimal_policy(policy):
+    prompt_status = "enabled" if policy.mode.value == "enforce" else "disabled"
+    return "\n".join(
+        [
+            f"minimal policy: {policy.mode.value}",
+            f"policy version: {policy.policy_version}",
+            f"prompt rules: {prompt_status}",
+            f"rule hash: {policy.rule_hash}",
+            f"observations: {len(policy.observations)}",
+        ]
+    )
+
+
+def _handle_minimal_policy(agent, arguments):
+    policy = _minimal_policy_for_agent(agent)
+    raw_mode = str(arguments or "").strip()
+    if not raw_mode:
+        return _format_minimal_policy(policy)
+    try:
+        previous = policy.mode.value
+        policy.set_mode(raw_mode)
+    except ValueError as exc:
+        return f"error: {exc}"
+    agent.session["minimal_policy"] = policy.to_dict()
+    agent.session_store.save(agent.session)
+    agent.session_event_bus.emit(
+        "minimal_policy_changed",
+        {
+            "previous_mode": previous,
+            "mode": policy.mode.value,
+            "policy_version": policy.policy_version,
+            "prompt_rules_enabled": policy.mode.value == "enforce",
+            "rule_hash": policy.rule_hash,
+        },
+    )
+    return _format_minimal_policy(policy)
 
 
 def _format_session_status(agent):

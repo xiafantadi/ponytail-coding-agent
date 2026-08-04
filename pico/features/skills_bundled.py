@@ -23,6 +23,24 @@ def bundled_skills():
             ),
         ),
         Skill(
+            name="minimal-review",
+            description="Review the current diff for unnecessary implementation and dependencies",
+            when_to_use="Before finalizing a code change when minimal-change policy is enabled",
+            argument_hint="focus",
+            allowed_tools=("list_files", "read_file", "search", "run_shell"),
+            source="builtin",
+            prompt_fn=_with_optional_section(
+                "# Minimal Change Review",
+                [
+                    "Inspect git status and git diff before making any recommendation.",
+                    "Look for duplicate repository logic, unnecessary abstractions, new dependencies, and extra files.",
+                    "Do not modify files. Report findings and explain which safety or requirement constraints must be retained.",
+                    "Use read-only tools only; do not run commands that mutate the workspace.",
+                ],
+                "Review Focus",
+            ),
+        ),
+        Skill(
             name="review",
             description="Review code changes and report issues without making fixes",
             when_to_use="Before committing or merging code changes",
