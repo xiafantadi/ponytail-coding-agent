@@ -44,6 +44,7 @@ class RuntimeCheckpointsMixin:
     def create_checkpoint(self, task_state, user_message, trigger):
         state = self.checkpoint_state()
         current = self.current_checkpoint()
+        minimal_policy = self.minimal_policy()
         checkpoint_id = "ckpt_" + uuid.uuid4().hex[:8]
         key_files = []
         freshness = {}
@@ -65,6 +66,7 @@ class RuntimeCheckpointsMixin:
             "freshness": freshness,
             "summary": f"{trigger}: {clip(str(user_message), 120)}",
             "runtime_identity": self.current_runtime_identity(),
+            "minimal_policy": minimal_policy.checkpoint_metadata(),
         }
         state["items"][checkpoint_id] = checkpoint
         state["current_id"] = checkpoint_id

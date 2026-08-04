@@ -22,7 +22,7 @@ from .config import (
     resolve_project_sandbox_config,
 )
 from .features import memory as memorylib
-from .features.minimal_policy import MinimalChangePolicy
+from .features.minimal_policy import MINIMAL_POLICY_VERSION, MinimalChangePolicy
 from .features import skills as skillslib
 from .features.skills_runtime import invoke_skill
 from .providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient
@@ -565,7 +565,12 @@ def _handle_minimal_policy(agent, arguments):
         return _format_minimal_policy(policy)
     try:
         previous = policy.mode.value
-        policy.set_mode(raw_mode)
+        policy.set_mode(
+            raw_mode,
+            activation_source="cli",
+            updated_at=now(),
+            policy_version=MINIMAL_POLICY_VERSION,
+        )
     except ValueError as exc:
         return f"error: {exc}"
     agent.session["minimal_policy"] = policy.to_dict()

@@ -272,7 +272,9 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         runtime_mode = self.session.setdefault("runtime_mode", {"mode": "default"})
         if not isinstance(runtime_mode, dict):
             self.session["runtime_mode"] = {"mode": "default"}
-        self.session.setdefault("minimal_policy", MinimalChangePolicy().to_dict())
+        self.session["minimal_policy"] = MinimalChangePolicy.normalize_session_state(
+            self.session.get("minimal_policy"), self.session.get("created_at") or now()
+        )
 
     def current_runtime_identity(self):
         return {
@@ -371,6 +373,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
                 if status == CHECKPOINT_PARTIAL_STALE_STATUS
                 else 0,
             ),
+            "minimal_policy": self.minimal_policy().resume_metadata(checkpoint),
         }
         self.session["resume_state"] = resume_state
         self.session["runtime_identity"] = self.current_runtime_identity()
@@ -480,7 +483,9 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             risk = "approval required" if tool["risky"] else "safe"
             tool_lines.append(f"- {name}({fields}) [{risk}] {tool['description']}")
         tool_text = "\n".join(tool_lines)
-        minimal_policy_text = self.minimal_policy().prompt_text()
+        minimal_policy = self.minimal_policy()
+        minimal_policy_text = minimal_policy.prompt_text()
+        minimal_policy_compatibility_text = minimal_policy.compatibility_prompt_text()
         examples = "\n".join(
             [
                 '<tool>{"name":"list_files","args":{"path":"."}}</tool>',
@@ -530,6 +535,8 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             {self.workspace.text()}
 
             {minimal_policy_text}
+
+            {minimal_policy_compatibility_text}
             """
         ).strip()
         minimal_policy_hash = self.minimal_policy_hash()
@@ -872,6 +879,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             "attempts": task_state.attempts,
             "checkpoint_id": task_state.checkpoint_id,
             "resume_status": task_state.resume_status,
+            "minimal_policy_resume": self.resume_state.get("minimal_policy") or self.minimal_policy().resume_metadata(self.current_checkpoint()),
             "task_state": task_state.to_dict(),
             "prompt_metadata": self.last_prompt_metadata,
             "durable_promotions": list(self.last_durable_promotions),
