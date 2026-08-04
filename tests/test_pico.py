@@ -350,7 +350,8 @@ def test_openai_compatible_client_posts_expected_responses_payload():
             }
         ],
         "max_output_tokens": 42,
-        "stream": False,
+        "stream": True,
+        "store": False,
         "temperature": 0.2,
     }
 
@@ -548,7 +549,8 @@ def test_openai_compatible_client_extracts_text_from_event_stream():
         def read(self):
             return (
                 'data: {"type":"response.created","response":{"id":"resp_1","output":[]}}\n'
-                'data: {"type":"response.completed","response":{"output":[{"content":[{"text":"<final>stream ok</final>"}]}]}}\n'
+                'data: {"type":"response.output_text.done","text":"<final>stream ok</final>"}\n'
+                'data: {"type":"response.completed","response":{"output":[{"content":[{"text":"<final>stream ok</final>"}]}],"usage":{"input_tokens":11,"output_tokens":4,"total_tokens":15}}}\n'
                 "data: [DONE]\n"
             ).encode("utf-8")
 
@@ -564,11 +566,13 @@ def test_openai_compatible_client_extracts_text_from_event_stream():
         result = client.complete("hello", 42)
 
     assert result == "<final>stream ok</final>"
+    assert client.last_completion_metadata["input_tokens"] == 11
+    assert client.last_completion_metadata["output_tokens"] == 4
 
 
 def test_openai_compatible_client_extracts_text_from_event_stream_deltas():
     class FakeResponse:
-        headers = {"Content-Type": "text/event-stream"}
+        headers = {}
 
         def __enter__(self):
             return self

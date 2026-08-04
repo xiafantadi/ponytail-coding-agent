@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.validate_llm_handoff import (
+from scripts.validate_llm_handoff import (  # noqa: E402
     scenario_delta_too_small_skips_compaction,
     scenario_llm_failure_falls_back_to_deterministic,
     scenario_low_pressure_no_compaction,

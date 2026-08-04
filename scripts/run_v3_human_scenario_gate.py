@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import pty
 import select
 import signal
 import shutil
@@ -20,6 +19,11 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+
+try:
+    import pty
+except ImportError:  # Windows does not provide POSIX pseudo terminals.
+    pty = None
 
 from pico.evaluation.run_evidence import RunEvidence
 
@@ -1165,8 +1169,6 @@ hello $ARGUMENTS from prompt only
             "pico",
             "--cwd",
             str(workspace),
-            "--config",
-            str(self.config),
             "--provider",
             self.args.provider,
             "--approval",
@@ -1179,6 +1181,8 @@ hello $ARGUMENTS from prompt only
             "--temperature",
             "0",
         ]
+        if self.config.is_file():
+            args[5:5] = ["--config", str(self.config)]
         if extra:
             args.extend(extra)
         input_text = stdin_text
@@ -1237,20 +1241,22 @@ hello $ARGUMENTS from prompt only
         )
 
     def run_pico_tty_smoke(self, name: str, workspace: Path, *, timeout: int = 6) -> CommandRecord:
+        if pty is None:
+            raise RuntimeError("PTY TUI smoke is not supported on this platform")
         args = [
             "uv",
             "run",
             "pico",
             "--cwd",
             str(workspace),
-            "--config",
-            str(self.config),
             "--provider",
             self.args.provider,
             "--approval",
             "auto",
             "--no-auto-dream",
         ]
+        if self.config.is_file():
+            args[5:5] = ["--config", str(self.config)]
         started = time.monotonic()
         master_fd, slave_fd = pty.openpty()
         stdout_chunks: list[bytes] = []

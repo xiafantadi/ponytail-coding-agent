@@ -106,6 +106,7 @@ def _extract_openai_text_from_sse(body_text):
 def _extract_openai_response_from_sse(body_text):
     last_response = None
     deltas = []
+    completed_text = ""
     for line in body_text.splitlines():
         line = line.strip()
         if not line.startswith("data:"):
@@ -122,8 +123,7 @@ def _extract_openai_response_from_sse(body_text):
             last_response = response
             if event.get("type") == "response.completed":
                 text = _extract_openai_text(response)
-                if text:
-                    return text, response
+                return text or completed_text or "".join(deltas), response
         event_type = event.get("type", "")
         if event_type == "response.output_text.delta":
             delta = event.get("delta")
@@ -132,11 +132,13 @@ def _extract_openai_response_from_sse(body_text):
         elif event_type == "response.output_text.done":
             text = event.get("text")
             if isinstance(text, str) and text:
-                return text, last_response or {}
+                completed_text = text
         else:
             text = _extract_openai_text(event)
             if text:
                 return text, event
+    if completed_text:
+        return completed_text, last_response or {}
     if deltas:
         return "".join(deltas), last_response or {}
     if isinstance(last_response, dict):
@@ -355,7 +357,8 @@ class OpenAICompatibleModelClient:
                 }
             ],
             "max_output_tokens": max_new_tokens,
-            "stream": False,
+            "stream": True,
+            "store": False,
         }
         if self.temperature is not None:
             payload["temperature"] = self.temperature
@@ -394,7 +397,8 @@ class OpenAICompatibleModelClient:
 
         # 有些兼容后端返回普通 JSON，有些返回 SSE。
         # 这里两种都接住，并尽量统一抽取文本和 usage/cache 元数据。
-        if content_type.startswith("text/event-stream") or body_text.lstrip().startswith("data:"):
+        stripped_body = body_text.lstrip()
+        if content_type.startswith("text/event-stream") or stripped_body.startswith(("data:", "event:")):
             text, response_data = _extract_openai_response_from_sse(body_text)
             if isinstance(response_data, dict) and response_data:
                 # 这些元数据会一路传回 runtime，进入 trace 和 report，

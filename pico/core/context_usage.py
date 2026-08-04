@@ -90,9 +90,11 @@ class ContextUsageAnalyzer:
 
     def _context_window(self):
         client_window = int(getattr(getattr(self.agent, "model_client", None), "context_window", 0) or 0)
-        if client_window: return client_window
+        if client_window:
+            return client_window
         model = str(getattr(getattr(self.agent, "model_client", None), "model", "")).lower()
-        if "1m" in model or "1000000" in model: return 1_000_000
+        if "1m" in model or "1000000" in model:
+            return 1_000_000
         return DEFAULT_CONTEXT_WINDOW
 
     def _tools_chars(self):
