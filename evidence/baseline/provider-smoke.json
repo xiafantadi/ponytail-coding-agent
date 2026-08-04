@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-08-04",
+  "baseline_commit": "dfbb9385a0d7fa3f0149d7d3e1b04aa7ca7c4fc7",
+  "provider_protocol": "openai-compatible",
+  "provider_endpoint": "redacted",
+  "model": "gpt-5.4",
+  "transport": {
+    "status": "passed",
+    "response_mode": "sse",
+    "store": false
+  },
+  "usage": {
+    "status": "passed",
+    "source": "provider",
+    "input_tokens": 2517,
+    "output_tokens": 43,
+    "total_tokens": 2560,
+    "cached_tokens": 0
+  },
+  "runtime": {
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "attempts": 1,
+    "tool_steps": 0,
+    "changed_paths": []
+  },
+  "external_verifier": {
+    "status": "failed",
+    "expected": "sample.txt contains beta-provider-smoke",
+    "observed": "sample.txt remained unchanged"
+  },
+  "claim_boundary": "This run proves provider connectivity and actual usage capture, not successful tool-task completion."
+}
