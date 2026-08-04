@@ -29,6 +29,13 @@ def build_runtime_event(runtime, task_state, event, payload):
     payload = dict(payload or {})
     payload["event"] = str(event)
     payload["created_at"] = now()
+    payload.setdefault("run_id", task_state.run_id)
+    if event in {"minimal_policy_applied", "minimality_audit_completed"}:
+        policy = dict(payload.get("minimal_policy", {}) or {})
+        metrics = dict(payload.get("minimality_metrics", {}) or {})
+        payload.setdefault("minimal_policy_mode", policy.get("mode", metrics.get("minimal_policy_mode")))
+        payload.setdefault("minimal_policy_version", policy.get("policy_version", metrics.get("minimal_policy_version")))
+        payload.setdefault("minimal_policy_hash", policy.get("rule_hash", metrics.get("minimal_policy_hash")))
     payload.setdefault("trace_id", task_state.run_id)
     payload.setdefault("turn_id", task_state.task_id)
     payload.setdefault("phase", PHASE_BY_EVENT.get(str(event), "runtime"))

@@ -147,6 +147,9 @@ class Engine:
                     "duration_ms": int((time.monotonic() - prompt_started_at) * 1000),
                 },
             )
+            agent.emit_trace(
+                task_state, "minimal_policy_applied", {"minimal_policy": prompt_metadata.get("minimal_policy", {})}
+            )
             structured_memory = getattr(getattr(agent, "memory", None), "last_retrieval", None)
             if structured_memory is not None:
                 agent.emit_trace(

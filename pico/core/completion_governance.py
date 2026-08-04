@@ -6,6 +6,7 @@ from .before_final_hooks import run_before_final_hooks
 from .final_readiness import evaluate_final_readiness, readiness_notice
 from .turn_transitions import emit_terminal_transition
 from .workspace import clip, now
+from .evidence_summaries import build_minimality_metrics
 
 
 def final_readiness_action(engine, task_state, proposed_final=""):
@@ -162,6 +163,14 @@ def _emit_terminal_artifacts(
         {"checkpoint_id": checkpoint["checkpoint_id"], "trigger": checkpoint_trigger},
     )
     duration_ms = int((time.monotonic() - run_started_at) * 1000)
+    task_state.minimality_metrics = build_minimality_metrics(
+        task_state, agent.last_prompt_metadata.get("minimal_policy"), agent.last_completion_metadata, duration_ms
+    )
+    agent.emit_trace(
+        task_state,
+        "minimality_audit_completed",
+        {"minimal_policy": agent.last_prompt_metadata.get("minimal_policy", {}), "minimality_metrics": task_state.minimality_metrics},
+    )
     agent.emit_trace(
         task_state,
         "run_finished",

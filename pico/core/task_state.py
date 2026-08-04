@@ -44,6 +44,7 @@ class TaskState:
     runtime_reminders: list = field(default_factory=list)
     todo_changes: list = field(default_factory=list)
     evidence_summaries: dict = field(default_factory=dict)
+    minimality_metrics: dict = field(default_factory=dict)
 
     @classmethod
     def create(cls, task_id, user_request, run_id=""):
@@ -71,6 +72,7 @@ class TaskState:
             runtime_reminders=list(data.get("runtime_reminders", [])),
             todo_changes=list(data.get("todo_changes", [])),
             evidence_summaries=dict(data.get("evidence_summaries", {}) or {}),
+            minimality_metrics=dict(data.get("minimality_metrics", {}) or {}),
         )
 
     def record_attempt(self):
@@ -126,4 +128,6 @@ class TaskState:
             "runtime_reminders": list(self.runtime_reminders),
             "todo_changes": list(self.todo_changes),
             "evidence_summaries": dict(self.evidence_summaries),
+            "minimality_metrics": dict(self.minimality_metrics),
+            **dict(self.minimality_metrics),
         }

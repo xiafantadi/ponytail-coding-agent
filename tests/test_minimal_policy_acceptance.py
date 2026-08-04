@@ -137,3 +137,67 @@ def test_enforce_rules_survive_prefix_section_tail_clipping(tmp_path):
     assert "Minimal change policy:" in prompt
     assert "Current user request:\nkeep the request" in prompt
     assert metadata["minimal_policy"]["prompt_rules_injected"] is True
+
+
+def test_policy_evidence_is_consistent_across_task_state_trace_and_report(tmp_path):
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool name="write_file" path="notes.txt"><content>hello\n</content></tool>',
+            "<final>Done.</final>",
+        ],
+    )
+    handle_repl_command(agent, "/minimal enforce")
+
+    assert agent.ask("Create notes.txt") == "Done."
+
+    task_state = json.loads(
+        agent.run_store.task_state_path(agent.current_task_state).read_text(encoding="utf-8")
+    )
+    report = json.loads(
+        agent.run_store.report_path(agent.current_task_state).read_text(encoding="utf-8")
+    )
+    trace = [
+        json.loads(line)
+        for line in agent.run_store.trace_path(agent.current_task_state).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    policy = task_state["minimality_metrics"]
+
+    assert task_state["minimal_policy_mode"] == "enforce"
+    assert task_state["minimal_policy_version"] == "minimal-policy-v1"
+    assert task_state["minimal_policy_hash"] == policy["minimal_policy_hash"]
+    assert report["minimality_metrics"] == policy
+    assert report["task_state"]["minimal_policy_hash"] == policy["minimal_policy_hash"]
+    assert policy["minimal_policy_prompt_chars"] > 0
+    assert policy["changed_files"] == 1
+    assert policy["tool_steps"] == 1
+    assert policy["attempts"] == 2
+    assert policy["added_lines"] is None
+    assert policy["dependencies_added"] is None
+
+    applied = next(event for event in trace if event["event"] == "minimal_policy_applied")
+    audited = next(event for event in trace if event["event"] == "minimality_audit_completed")
+    for event in (applied, audited):
+        assert event["run_id"] == agent.current_task_state.run_id
+        assert event["created_at"]
+        assert event["minimal_policy_mode"] == "enforce"
+        assert event["minimal_policy_version"] == "minimal-policy-v1"
+        assert event["minimal_policy_hash"] == policy["minimal_policy_hash"]
+
+
+def test_policy_evidence_preserves_null_for_unavailable_provider_usage(tmp_path):
+    agent = build_agent(tmp_path, ["<final>Done.</final>"])
+
+    assert agent.ask("Inspect the repository") == "Done."
+
+    report = json.loads(
+        agent.run_store.report_path(agent.current_task_state).read_text(encoding="utf-8")
+    )
+    metrics = report["minimality_metrics"]
+
+    assert metrics["minimal_policy_mode"] == "off"
+    assert metrics["input_tokens"] is None
+    assert metrics["cached_input_tokens"] is None
+    assert metrics["output_tokens"] is None
+    assert metrics["reasoning_tokens"] is None

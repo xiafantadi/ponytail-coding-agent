@@ -584,6 +584,10 @@ def _handle_minimal_policy(agent, arguments):
             "policy_version": policy.policy_version,
             "prompt_rules_enabled": policy.mode.value == "enforce",
             "rule_hash": policy.rule_hash,
+            "run_id": agent.current_run_id,
+            "minimal_policy_mode": policy.mode.value,
+            "minimal_policy_version": policy.policy_version,
+            "minimal_policy_hash": policy.rule_hash,
         },
     )
     return _format_minimal_policy(policy)

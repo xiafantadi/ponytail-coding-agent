@@ -665,7 +665,6 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         snapshot = self.context_orchestrator.snapshot(user_message, prefix_refresh=refresh)
         result = self.context_orchestrator.build(snapshot)
         return result.prompt, result.metadata
-
     def compact_history(self, trigger="manual", keep_recent_turns=2, summary_mode="deterministic"):
         return self.compact_manager.compact(
             trigger=trigger, keep_recent_turns=keep_recent_turns, summary_mode=summary_mode
@@ -880,6 +879,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
             "checkpoint_id": task_state.checkpoint_id,
             "resume_status": task_state.resume_status,
             "minimal_policy_resume": self.resume_state.get("minimal_policy") or self.minimal_policy().resume_metadata(self.current_checkpoint()),
+            "minimality_metrics": dict(task_state.minimality_metrics),
             "task_state": task_state.to_dict(),
             "prompt_metadata": self.last_prompt_metadata,
             "durable_promotions": list(self.last_durable_promotions),
