@@ -1,0 +1,69 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+
+# Packaging
+*.egg-info/
+build/
+dist/
+
+# Test and lint caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Local scratch space
+tmp/
+.worktrees/
+.pico/
+.mini-pico/
+_local/
+artifacts/
+.kami-output/
+readme_intro_locked/
+
+# Local secrets and provider configuration
+.env
+.env.*
+!.env.example
+.pico.toml
+!.pico.toml.example
+
+# Local docs not intended for publication
+docs/**
+!docs/
+!docs/configuration.md
+!docs/memory.md
+!docs/skills.md
+!docs/sandbox.md
+
+# OS files
+.DS_Store
+
+# Packaging metadata
+pico.egg-info/
+.gstack/
+release/*
+!release/v3/
+release/v3/*
+!release/v3/MINIMAL_CHANGE_VIBECODING_IMPLEMENTATION_GUIDE.md
+_tmp_resume_review/
+.pytest_interview_*/
+task_plan.md
+findings.md
+progress.md
+.agents/
