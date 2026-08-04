@@ -18,6 +18,7 @@ from .verifier import build_verifier_argv, run_verifier
 MINIMAL_CHANGE_SCHEMA_VERSION = 1
 MINIMAL_CHANGE_STATUS = "valid"
 INVALID_TASK_STATUS = "invalid_task"
+_TRANSIENT_FIXTURE_DIRS = {".git", ".pico", ".pytest_cache", "__pycache__"}
 
 REQUIRED_TASK_KEYS = (
     "task_id",
@@ -110,7 +111,13 @@ def fixture_snapshot_id(fixture_repo: str | Path) -> str:
     if not root.is_dir():
         raise ValueError(f"fixture repo does not exist: {fixture_repo}")
     digest = hashlib.sha256()
-    for path in sorted((item for item in root.rglob("*") if item.is_file()), key=lambda item: item.relative_to(root).as_posix()):
+    files = (
+        item
+        for item in root.rglob("*")
+        if item.is_file()
+        and not _TRANSIENT_FIXTURE_DIRS.intersection(item.relative_to(root).parts)
+    )
+    for path in sorted(files, key=lambda item: item.relative_to(root).as_posix()):
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
         digest.update(path.read_bytes())

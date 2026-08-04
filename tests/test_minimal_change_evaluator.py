@@ -1,6 +1,7 @@
 import json
 import shutil
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -140,3 +141,37 @@ def test_fixture_snapshot_is_stable_and_source_is_unchanged(tmp_path):
     assert result["status"] == "valid"
     assert result["actual_fixture_revision"] == before
     assert fixture_snapshot_id(fixture) == before
+
+
+def test_default_minimal_change_suite_has_balanced_behavioral_tasks():
+    loaded = load_minimal_change_tasks()
+    tasks = loaded["tasks"]
+
+    assert len(tasks) == 18
+    assert Counter(task["category"] for task in tasks) == {
+        "overbuild_trap": 6,
+        "bug_fix": 6,
+        "security": 6,
+    }
+    assert all(task["status"] == "valid" for task in tasks)
+    assert all(
+        "tests/test_behavior.py" in " ".join(map(str, task["failing_tests"]))
+        for task in tasks
+    )
+    assert all(task["target_files"] for task in tasks)
+
+
+def test_default_tasks_use_behavioral_verifiers_and_not_file_presence_checks():
+    loaded = load_minimal_change_tasks()
+
+    for task in loaded["tasks"]:
+        commands = [task["holdout_verifier"]]
+        commands.extend(task["failing_tests"])
+        commands.extend(task["regression_tests"])
+        command_text = " ".join(
+            command if isinstance(command, str) else " ".join(command)
+            for command in commands
+        )
+        assert "exists()" not in command_text
+        assert "is_file()" not in command_text
+        assert "test_behavior.py" in command_text
