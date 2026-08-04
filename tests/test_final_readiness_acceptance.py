@@ -46,6 +46,25 @@ def test_soft_final_readiness_does_not_warn_for_low_pressure_missing_provider_us
     ]
 
 
+def test_default_final_gate_blocks_false_completion_after_one_notice(tmp_path):
+    agent = build_agent(
+        tmp_path,
+        [
+            "<final>Fixed and verified.</final>",
+            "<final>Fixed and verified.</final>",
+        ],
+    )
+
+    answer = agent.ask("Fix the bug with patch_file src/app.py and run tests.")
+
+    assert "Final answer blocked" in answer
+    report = json.loads((agent.current_run_dir / "report.json").read_text(encoding="utf-8"))
+    assert report["status"] == "stopped"
+    assert report["stop_reason"] == "final_gate_blocked"
+    assert report["verified_success"] is False
+    assert report["evidence_summaries"]["final_readiness_summary"]["block_count"] == 1
+
+
 def test_soft_final_readiness_reminds_once_then_allows_unchanged_final(tmp_path):
     agent = build_agent(
         tmp_path,

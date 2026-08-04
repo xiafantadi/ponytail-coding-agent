@@ -12,11 +12,9 @@ READINESS_REASONS = {
         "hard",
         "Files changed, but no successful verification was recorded.",
     ),
+    "requested_change_not_observed": ("hard", "The request requires a workspace change, but no changed file was recorded."),
     "failed_verification": ("hard", "The latest verification command failed."),
-    "governance_denial": (
-        "hard",
-        "A runtime governance decision denied a requested tool action.",
-    ),
+    "governance_denial": ("hard", "A runtime governance decision denied a requested tool action."),
     "partial_success_workspace_changed": (
         "hard",
         "A tool partially succeeded and changed the workspace.",

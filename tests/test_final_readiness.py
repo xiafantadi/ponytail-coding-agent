@@ -122,6 +122,20 @@ def test_final_readiness_allows_missing_provider_usage_at_low_pressure():
     assert decision["reasons"] == []
 
 
+def test_final_readiness_requires_requested_write_to_change_workspace():
+    state = task_state()
+    state.user_request = "Fix the bug with patch_file src/app.py and run tests."
+
+    first = evaluate_final_readiness(state, "warn")
+    second = evaluate_final_readiness(state, "warn")
+
+    assert first["decision"] == "remind"
+    assert first["action"] == "runtime_notice"
+    assert first["reasons"] == ["requested_change_not_observed"]
+    assert second["decision"] == "block"
+    assert second["action"] == "block"
+
+
 def test_final_readiness_warns_on_negative_llm_compact_net_benefit():
     state = task_state()
     state.evidence_summaries = {

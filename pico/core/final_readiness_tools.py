@@ -8,6 +8,7 @@ from .final_readiness_context import context_pressure_compaction_failed
 from .final_readiness_context import provider_usage_unavailable
 from .final_readiness_context import replacement_ledger_disabled_under_pressure
 from .final_readiness_context import tier3_summary_without_delta
+from .task_intent import request_requires_workspace_change
 
 UNRESOLVED_TODO_STATUS = {"pending", "in_progress"}
 
@@ -22,6 +23,8 @@ def readiness_reasons(task_state, workspace_root=None):
         task_state.evidence_summaries = summaries
         reasons.append("missing_required_artifact")
     verification = dict(summaries.get("verification_signal", {}) or {})
+    if request_requires_workspace_change(task_state.user_request) and not task_state.changed_paths:
+        reasons.append("requested_change_not_observed")
     if task_state.changed_paths and verification.get("state") != "passed":
         reasons.append("changed_paths_without_verification")
     if verification.get("state") == "failed":
@@ -49,8 +52,6 @@ def readiness_reasons(task_state, workspace_root=None):
     if context_pressure_compaction_failed(context):
         reasons.append("context_pressure_compaction_failed")
     return reasons
-
-
 def _has_unresolved_high_priority_todo(task_state):
     latest = {}
     for change in task_state.todo_changes or []:

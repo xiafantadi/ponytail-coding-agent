@@ -27,7 +27,15 @@ def evaluate_final_readiness(task_state, mode, workspace_root=None):
     already_sent = bool(signature and signature in reminded)
     decision = "allow"
     action = "none"
-    if reasons and mode == "warn":
+    # A false completion is more damaging than one extra model turn. Give the
+    # model one chance to perform an explicitly requested write, then stop.
+    if "requested_change_not_observed" in reasons:
+        decision, action = (
+            ("block", "block") if already_sent else ("remind", "runtime_notice")
+        )
+        if not already_sent:
+            reminded.add(signature)
+    elif reasons and mode == "warn":
         decision = "warn"
     elif reasons and mode == "soft":
         decision, action = ("warn", "none") if already_sent else ("remind", "runtime_notice")
