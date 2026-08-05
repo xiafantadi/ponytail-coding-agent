@@ -1,0 +1,24 @@
+--- a/app.py
++++ b/app.py
+@@ -1,5 +1,8 @@
+-import json
+-
+-
+-def parse_object(text):
+-    return json.loads(text)
++import json
+
++
+
++
+
++def parse_object(text):
+
++    value = json.loads(text)
+
++    if not isinstance(value, dict):
+
++        raise ValueError("JSON input must be an object")
+
++    return value
+

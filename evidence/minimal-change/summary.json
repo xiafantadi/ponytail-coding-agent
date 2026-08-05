@@ -1,0 +1,188 @@
+{
+  "by_arm": {
+    "baseline": {
+      "fail2pass_passed": 18,
+      "failed": 0,
+      "failure_category_counts": {},
+      "holdout_verifier_passed": 18,
+      "pass2pass_passed": 18,
+      "pass_rate": 1.0,
+      "passed": 18,
+      "total_runs": 18
+    },
+    "minimal_policy": {
+      "fail2pass_passed": 18,
+      "failed": 0,
+      "failure_category_counts": {},
+      "holdout_verifier_passed": 18,
+      "pass2pass_passed": 18,
+      "pass_rate": 1.0,
+      "passed": 18,
+      "total_runs": 18
+    },
+    "short_yagni": {
+      "fail2pass_passed": 18,
+      "failed": 0,
+      "failure_category_counts": {},
+      "holdout_verifier_passed": 18,
+      "pass2pass_passed": 18,
+      "pass_rate": 1.0,
+      "passed": 18,
+      "total_runs": 18
+    }
+  },
+  "efficiency": {
+    "cost_per_verified_pass": null,
+    "cost_per_verified_pass_reason": "cost_not_recorded",
+    "tokens_per_verified_pass": 4264.537037037037,
+    "tokens_per_verified_pass_reason": "available"
+  },
+  "fail2pass_pass_rate": 1.0,
+  "fail2pass_passed": 54,
+  "failed": 0,
+  "failure_category_counts": {},
+  "holdout_verifier_pass_rate": 1.0,
+  "holdout_verifier_passed": 54,
+  "metrics": {
+    "added_lines": {
+      "count": 0,
+      "mean": null,
+      "median": null,
+      "sum": null
+    },
+    "attempts": {
+      "count": 54,
+      "mean": 5.944444444444445,
+      "median": 6.0,
+      "sum": 321.0
+    },
+    "changed_files": {
+      "count": 54,
+      "mean": 1.0,
+      "median": 1.0,
+      "sum": 54.0
+    },
+    "deleted_lines": {
+      "count": 0,
+      "mean": null,
+      "median": null,
+      "sum": null
+    },
+    "dependencies_added_count": {
+      "count": 0,
+      "mean": null,
+      "median": null,
+      "sum": null
+    },
+    "duration_ms": {
+      "count": 54,
+      "mean": 32406.118148148147,
+      "median": 29129.825,
+      "sum": 1749930.38
+    },
+    "tool_steps": {
+      "count": 54,
+      "mean": 5.648148148148148,
+      "median": 5.0,
+      "sum": 305.0
+    }
+  },
+  "paired_deltas": {
+    "minimal_policy": {
+      "added_lines": {
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "sum": null
+      },
+      "attempts": {
+        "count": 18,
+        "mean": -0.5555555555555556,
+        "median": 0.0,
+        "sum": -10.0
+      },
+      "changed_files": {
+        "count": 18,
+        "mean": 0.0,
+        "median": 0.0,
+        "sum": 0.0
+      },
+      "tool_steps": {
+        "count": 18,
+        "mean": -0.6666666666666666,
+        "median": 0.0,
+        "sum": -12.0
+      },
+      "total_tokens": {
+        "count": 18,
+        "mean": -99.55555555555556,
+        "median": 71.5,
+        "sum": -1792.0
+      }
+    },
+    "short_yagni": {
+      "added_lines": {
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "sum": null
+      },
+      "attempts": {
+        "count": 18,
+        "mean": -0.6111111111111112,
+        "median": -1.0,
+        "sum": -11.0
+      },
+      "changed_files": {
+        "count": 18,
+        "mean": 0.0,
+        "median": 0.0,
+        "sum": 0.0
+      },
+      "tool_steps": {
+        "count": 18,
+        "mean": -0.5555555555555556,
+        "median": 0.0,
+        "sum": -10.0
+      },
+      "total_tokens": {
+        "count": 18,
+        "mean": -63.666666666666664,
+        "median": 76.0,
+        "sum": -1146.0
+      }
+    }
+  },
+  "pass2pass_pass_rate": 1.0,
+  "pass2pass_passed": 54,
+  "pass_rate": 1.0,
+  "passed": 54,
+  "total_tasks": 54,
+  "usage": {
+    "cached_tokens": {
+      "count": 54,
+      "mean": 0.0,
+      "median": 0.0,
+      "sum": 0.0
+    },
+    "input_tokens": {
+      "count": 54,
+      "mean": 4181.092592592592,
+      "median": 4087.0,
+      "sum": 225779.0
+    },
+    "output_tokens": {
+      "count": 54,
+      "mean": 83.44444444444444,
+      "median": 80.5,
+      "sum": 4506.0
+    },
+    "runs_with_usage": 54,
+    "total_tokens": {
+      "count": 54,
+      "mean": 4264.537037037037,
+      "median": 4163.0,
+      "sum": 230285.0
+    }
+  }
+}

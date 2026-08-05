@@ -1,0 +1,15 @@
+--- a/app.py
++++ b/app.py
+@@ -1,2 +1,5 @@
+-def export_value(value):
+-    return str(value)
++def export_value(value):
+
++    text = str(value)
+
++    if text.startswith(("=", "+", "-", "@")):
+
++        return "'" + text
+
++    return text
+

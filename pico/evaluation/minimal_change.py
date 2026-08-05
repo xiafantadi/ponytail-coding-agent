@@ -567,7 +567,10 @@ def _failure_counts(rows):
 
 
 def _paired_deltas(rows):
-    groups = _group_rows(rows, "task_id")
+    groups = {}
+    for row in rows:
+        key = (str(row.get("task_id", "")), str(row.get("repetition", 1)))
+        groups.setdefault(key, []).append(row)
     result = {}
     for arm in sorted({str(row.get("arm")) for row in rows if row.get("arm") and row.get("arm") != "baseline"}):
         deltas = {

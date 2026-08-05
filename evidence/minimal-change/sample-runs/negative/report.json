@@ -1,0 +1,705 @@
+{
+  "artifact_graph": {
+    "api_refs": [],
+    "categories": {
+      "backend": [
+        "app.py"
+      ],
+      "dependencies": [],
+      "docs": [],
+      "frontend": [],
+      "other": [],
+      "tests": []
+    },
+    "changed_paths": [
+      "app.py"
+    ],
+    "route_refs": []
+  },
+  "attempts": 6,
+  "checkpoint_id": "ckpt_02ab0ac7",
+  "compactions": [],
+  "durable_promotions": [],
+  "durable_rejections": [],
+  "durable_superseded": [],
+  "evidence_summaries": {
+    "context_budget_summary": {
+      "budget_unit": "tokens_estimated",
+      "cached_tokens": 0,
+      "compact_call_usage": null,
+      "compact_net_benefit_tokens": null,
+      "compact_summary_has_file_references": null,
+      "compact_summary_has_next_steps": null,
+      "effective_window": 191808,
+      "estimated_tokens": 3849,
+      "post_compact_estimated_tokens": 0,
+      "pre_compact_estimated_tokens": 0,
+      "pressure_ratio": 0.0201,
+      "pressure_tier": "tier0_observe",
+      "prompt_changed_by_phase_3": false,
+      "provider_usage_available": false,
+      "prune_count": 0,
+      "reductions": [],
+      "replacement_cache_hits": 0,
+      "replacement_ledger_enabled": true,
+      "replacement_records_created": 0,
+      "reserved_output_tokens": 8192,
+      "saved_chars": 0,
+      "schema_version": "pico.context_budget_summary.v1",
+      "snip_count": 0,
+      "summary_called": false,
+      "summary_delta_event_count": 0,
+      "summary_mode": "",
+      "token_estimator": "context_usage_analyzer",
+      "usage_source": "estimated"
+    },
+    "final_readiness_state": {
+      "reminded_reason_signatures": []
+    },
+    "final_readiness_summary": {
+      "allow_count": 1,
+      "block_count": 0,
+      "last_decision": "allow",
+      "last_reasons": [],
+      "remind_count": 0,
+      "schema_version": "pico.final_readiness_summary.v1",
+      "warn_count": 0
+    },
+    "governance_summary": {
+      "allow_count": 12,
+      "decision_type_counts": {
+        "permission": 6,
+        "tool_policy": 6
+      },
+      "deny_count": 0,
+      "reasons": {
+        "approval_auto": 1,
+        "policy_ok": 6,
+        "read_only": 4,
+        "write_scope": 1
+      },
+      "schema_version": "pico.governance_summary.v1",
+      "warn_count": 0
+    },
+    "minimal_policy": {
+      "activation_source": "default",
+      "compatibility_notice": "",
+      "compatibility_notice_injected": false,
+      "compatibility_status": "compatible",
+      "effective_mode": "enforce",
+      "mode": "enforce",
+      "policy_version": "minimal-policy-v1",
+      "prefix_policy_hash": "449e315a3548512adfece7f3be3fc441a1dca7b4f4fafc280ab8f2eeef01a314",
+      "prompt_rules_injected": true,
+      "rule_chars": 418,
+      "rule_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+      "updated_at": "2026-08-05T03:08:18.365954+00:00"
+    },
+    "minimality_audit": {
+      "added_lines": null,
+      "audit_status": "passed",
+      "blocking_findings": [],
+      "changed_files": 1,
+      "changed_paths": [
+        "app.py"
+      ],
+      "deleted_lines": null,
+      "dependencies_added": null,
+      "findings": [],
+      "out_of_scope_paths": [],
+      "schema_version": "pico.minimality_audit.v1",
+      "scope_status": "passed",
+      "verification_evidence": {
+        "changed_paths": [
+          "app.py"
+        ],
+        "source_span_id": "span_000063",
+        "state": "passed"
+      },
+      "verification_status": "passed"
+    },
+    "minimality_metrics": {
+      "added_lines": null,
+      "attempts": 6,
+      "cached_input_tokens": 0,
+      "changed_files": 1,
+      "deleted_lines": null,
+      "dependencies_added": null,
+      "duration_ms": 34041,
+      "input_tokens": 4135,
+      "minimal_policy_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+      "minimal_policy_mode": "enforce",
+      "minimal_policy_prompt_chars": 418,
+      "minimal_policy_version": "minimal-policy-v1",
+      "output_tokens": 102,
+      "reasoning_tokens": null,
+      "tool_steps": 6,
+      "verification_status": "passed"
+    },
+    "transition_summary": {
+      "continue_count": 5,
+      "max_attempt_index": 6,
+      "reasons": {
+        "final_answer_returned": 1,
+        "tool_batch_executed": 5
+      },
+      "schema_version": "pico.transition_summary.v1",
+      "terminal_count": 1,
+      "terminal_reason": "final_answer_returned",
+      "tool_executed_count": 6,
+      "tool_requested_count": 6
+    },
+    "verification_signal": {
+      "after_last_workspace_change": true,
+      "changed_paths": [
+        "app.py"
+      ],
+      "changed_paths_present": true,
+      "command": "python -m pytest -q",
+      "command_class": "test",
+      "coverage_confidence": "unknown",
+      "covers_changed_paths": false,
+      "last_workspace_change_span_id": "span_000051",
+      "schema_version": "pico.verification_signal.v1",
+      "source_span_id": "span_000063",
+      "state": "passed"
+    }
+  },
+  "final_answer": "Implemented in `app.py`: `parse_object` now parses JSON, rejects non-object top-level values with `ValueError`, and still supports nested objects. Verified with `python -m pytest -q` — 3 tests passed.",
+  "memory_maintenance": {
+    "auto_dream": {
+      "changed_files": [],
+      "enabled": false,
+      "session_count": 0,
+      "session_ids": [],
+      "skip_reason": "disabled",
+      "triggered": false
+    },
+    "errors": [],
+    "memory_tags_appended": []
+  },
+  "minimal_policy_resume": {
+    "activation_source": "default",
+    "checkpoint_match": true,
+    "checkpoint_policy": {
+      "compatibility_status": "compatible",
+      "effective_mode": "enforce",
+      "mode": "enforce",
+      "policy_version": "minimal-policy-v1",
+      "rule_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d"
+    },
+    "compatibility_notice": "",
+    "compatibility_status": "compatible",
+    "effective_mode": "enforce",
+    "mode": "enforce",
+    "policy_version": "minimal-policy-v1",
+    "rule_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+    "updated_at": "2026-08-05T03:08:18.365954+00:00"
+  },
+  "minimality_metrics": {
+    "added_lines": null,
+    "attempts": 6,
+    "cached_input_tokens": 0,
+    "changed_files": 1,
+    "deleted_lines": null,
+    "dependencies_added": null,
+    "duration_ms": 34041,
+    "input_tokens": 4135,
+    "minimal_policy_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+    "minimal_policy_mode": "enforce",
+    "minimal_policy_prompt_chars": 418,
+    "minimal_policy_version": "minimal-policy-v1",
+    "output_tokens": 102,
+    "reasoning_tokens": null,
+    "tool_steps": 6,
+    "verification_status": "passed"
+  },
+  "prompt_metadata": {
+    "budget_reductions": [],
+    "cache_hit": false,
+    "cached_tokens": 0,
+    "context_orchestrator": {
+      "compact_call_usage": null,
+      "compact_summary_has_file_references": null,
+      "compact_summary_has_next_steps": null,
+      "compact_trigger": null,
+      "pressure_tier": "tier0_observe",
+      "replacement_cache_hits": 0,
+      "replacement_ledger_enabled": true,
+      "replacement_records_created": 0,
+      "replacement_saved_chars": 0,
+      "retention_decisions": [],
+      "should_compact": false,
+      "skip_reason": "",
+      "summary_called": false,
+      "summary_delta_event_count": 0,
+      "summary_mode": "",
+      "usage_source": "estimated",
+      "version": "local-v1"
+    },
+    "context_usage": {
+      "actual_input_tokens": null,
+      "budget_tokens": 91808,
+      "cached_tokens": null,
+      "calibration_source": "last_completion_identity_mismatch",
+      "context_window": 200000,
+      "current_identity": {
+        "context_window": 200000,
+        "model": "gpt-5.5",
+        "prompt_cache_key": "32276c0ecbd1e4dd73a6c2424335d8788e2fbe91ceb960bfea9f1359a3206ecb",
+        "prompt_hash": "19742ca316df4c04b291394eeb4e03b721c0610b863ee1ca826b85a59ab14cd9",
+        "provider": "OpenAICompatibleModelClient",
+        "provider_base_url": "<redacted>"
+      },
+      "estimation_method": "typed_content_heuristic_v1",
+      "free_tokens": 87959,
+      "last_actual_input_tokens": 4080,
+      "model": "gpt-5.5",
+      "pressure_ratio": 0.041924,
+      "pressure_tier": "tier0_observe",
+      "reserved_output_tokens": 8192,
+      "sections": {
+        "current_request": {
+          "chars": 614,
+          "tokens": 154
+        },
+        "history": {
+          "chars": 2238,
+          "tokens": 560
+        },
+        "memory": {
+          "chars": 5886,
+          "tokens": 1472
+        },
+        "prefix": {
+          "chars": 6072,
+          "tokens": 1518
+        },
+        "relevant_memory": {
+          "chars": 87,
+          "tokens": 22
+        },
+        "skills": {
+          "chars": 24,
+          "tokens": 6
+        },
+        "tools": {
+          "chars": 466,
+          "tokens": 117
+        }
+      },
+      "total_estimated_tokens": 3849,
+      "usage_source": "estimated",
+      "window_ratio": 0.019245
+    },
+    "current_request": {
+      "raw_chars": 592,
+      "rendered_chars": 592,
+      "section_chars": 614,
+      "text": "Make the JSON input helper enforce its object contract while retaining support for nested JSON objects.\n\nThis is an implementation task, not a code explanation task. Inspect the repository with the available tools and read an existing target file before editing it. Modify only the allowed files with patch_file or write_file when available, rather than shell text replacement. Run the relevant repository tests after the edit, including rerunning a test that failed before the edit. Do not return <final> until the required change has been applied and verified. Allowed change files: app.py."
+    },
+    "history": {
+      "collapsed_duplicate_reads": 0,
+      "microcompact_artifact_refs": [],
+      "microcompact_saved_chars": 0,
+      "old_turn_line_limit": 80,
+      "older_entries_count": 0,
+      "proposed_replacements": [],
+      "raw_chars": 2238,
+      "recent_window": 1,
+      "rendered_chars": 2238,
+      "rendered_turns": 1,
+      "replacement_cache_hits": 0,
+      "replacement_records_created": 0,
+      "replacement_saved_chars": 0,
+      "reused_file_summary_count": 0,
+      "summarized_tool_count": 0
+    },
+    "history_chars": 1845,
+    "image_input_count": 0,
+    "input_tokens": 4135,
+    "memory_chars": 515,
+    "minimal_policy": {
+      "activation_source": "default",
+      "compatibility_notice": "",
+      "compatibility_notice_injected": false,
+      "compatibility_status": "compatible",
+      "effective_mode": "enforce",
+      "mode": "enforce",
+      "policy_version": "minimal-policy-v1",
+      "prefix_policy_hash": "449e315a3548512adfece7f3be3fc441a1dca7b4f4fafc280ab8f2eeef01a314",
+      "prompt_rules_injected": true,
+      "rule_chars": 418,
+      "rule_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+      "updated_at": "2026-08-05T03:08:18.365954+00:00"
+    },
+    "minimal_policy_changed": false,
+    "native_tool_call_count": 0,
+    "native_tools_enabled": true,
+    "output_tokens": 102,
+    "prefix_changed": false,
+    "prefix_chars": 6538,
+    "prefix_hash": "32276c0ecbd1e4dd73a6c2424335d8788e2fbe91ceb960bfea9f1359a3206ecb",
+    "pressure": {
+      "ratio": 0.2566,
+      "source": "char_estimate",
+      "tier": "tier0_observe"
+    },
+    "prompt_budget_chars": 60000,
+    "prompt_cache_key": null,
+    "prompt_cache_retention": null,
+    "prompt_cache_supported": false,
+    "prompt_chars": 15397,
+    "prompt_over_budget": false,
+    "provider_attempts": 1,
+    "provider_base_url": "<redacted>",
+    "provider_model": "gpt-5.5",
+    "provider_protocol": "openai",
+    "provider_retry_count": 0,
+    "recent_commits": 5,
+    "reduction_order": [
+      "relevant_memory",
+      "skills",
+      "history",
+      "memory",
+      "prefix"
+    ],
+    "relevant_memory": {
+      "limit": 3,
+      "raw_chars": 87,
+      "rendered_chars": 87,
+      "rendered_count": 2,
+      "rendered_notes": [
+        "1: import json | 2: | 3:",
+        "1: from app import parse_object | 2: | 3:"
+      ],
+      "selected_count": 2,
+      "selected_durable_count": 0,
+      "selected_kinds": [
+        "episodic",
+        "episodic"
+      ],
+      "selected_notes": [
+        "1: import json | 2: | 3:",
+        "1: from app import parse_object | 2: | 3:"
+      ],
+      "selected_sources": [
+        "app.py",
+        "tests/test_behavior.py"
+      ]
+    },
+    "request_chars": 592,
+    "resume_status": "full-valid",
+    "runtime_identity_mismatch_fields": [],
+    "secret_env_count": 0,
+    "secret_env_names": [],
+    "section_budgets": {
+      "current_request": null,
+      "history": 30000,
+      "memory": 7800,
+      "prefix": 12000,
+      "relevant_memory": 6000,
+      "skills": 4200
+    },
+    "section_order": [
+      "prefix",
+      "memory",
+      "skills",
+      "relevant_memory",
+      "history",
+      "current_request"
+    ],
+    "sections": {
+      "current_request": {
+        "budget_chars": null,
+        "raw_chars": 614,
+        "rendered_chars": 614
+      },
+      "history": {
+        "budget_chars": 30000,
+        "raw_chars": 2238,
+        "rendered_chars": 2238
+      },
+      "memory": {
+        "budget_chars": 7800,
+        "raw_chars": 5886,
+        "rendered_chars": 5886
+      },
+      "prefix": {
+        "budget_chars": 12000,
+        "raw_chars": 6538,
+        "rendered_chars": 6538
+      },
+      "relevant_memory": {
+        "budget_chars": 6000,
+        "raw_chars": 87,
+        "rendered_chars": 87
+      },
+      "skills": {
+        "budget_chars": 4200,
+        "raw_chars": 24,
+        "rendered_chars": 24
+      }
+    },
+    "skills": {
+      "available_count": 0,
+      "items": [],
+      "user_invocable_count": 0
+    },
+    "stale_paths": [],
+    "stale_summary_invalidations": 0,
+    "tool_call_channel": "text",
+    "tool_count": 5,
+    "tool_signature": "533727dd4f4539c08a8aa3b025b55dea013495d0f713ac11e00aeee235527f93",
+    "total_tokens": 4237,
+    "workspace_changed": false,
+    "workspace_chars": 2851,
+    "workspace_docs": 2,
+    "workspace_fingerprint": "d4df7f06704aa0ab6f65e015c4dbf232f247b405a2377a9fdb6d05284df00ce1"
+  },
+  "redacted_env": {
+    "secret_env_count": 0,
+    "secret_env_names": []
+  },
+  "resume_status": "no-checkpoint",
+  "run_id": "run_20260805-110818-d0a11e",
+  "runtime_completion": "completed",
+  "runtime_reminders": [],
+  "status": "completed",
+  "stop_reason": "final_answer_returned",
+  "task_id": "task_20260805-110818-e46195",
+  "task_state": {
+    "added_lines": null,
+    "artifact_graph": {
+      "api_refs": [],
+      "categories": {
+        "backend": [
+          "app.py"
+        ],
+        "dependencies": [],
+        "docs": [],
+        "frontend": [],
+        "other": [],
+        "tests": []
+      },
+      "changed_paths": [
+        "app.py"
+      ],
+      "route_refs": []
+    },
+    "attempts": 6,
+    "cached_input_tokens": 0,
+    "changed_files": 1,
+    "changed_paths": [
+      "app.py"
+    ],
+    "checkpoint_id": "ckpt_02ab0ac7",
+    "deleted_lines": null,
+    "dependencies_added": null,
+    "duration_ms": 34041,
+    "evidence_summaries": {
+      "context_budget_summary": {
+        "budget_unit": "tokens_estimated",
+        "cached_tokens": 0,
+        "compact_call_usage": null,
+        "compact_net_benefit_tokens": null,
+        "compact_summary_has_file_references": null,
+        "compact_summary_has_next_steps": null,
+        "effective_window": 191808,
+        "estimated_tokens": 3849,
+        "post_compact_estimated_tokens": 0,
+        "pre_compact_estimated_tokens": 0,
+        "pressure_ratio": 0.0201,
+        "pressure_tier": "tier0_observe",
+        "prompt_changed_by_phase_3": false,
+        "provider_usage_available": false,
+        "prune_count": 0,
+        "reductions": [],
+        "replacement_cache_hits": 0,
+        "replacement_ledger_enabled": true,
+        "replacement_records_created": 0,
+        "reserved_output_tokens": 8192,
+        "saved_chars": 0,
+        "schema_version": "pico.context_budget_summary.v1",
+        "snip_count": 0,
+        "summary_called": false,
+        "summary_delta_event_count": 0,
+        "summary_mode": "",
+        "token_estimator": "context_usage_analyzer",
+        "usage_source": "estimated"
+      },
+      "final_readiness_state": {
+        "reminded_reason_signatures": []
+      },
+      "final_readiness_summary": {
+        "allow_count": 1,
+        "block_count": 0,
+        "last_decision": "allow",
+        "last_reasons": [],
+        "remind_count": 0,
+        "schema_version": "pico.final_readiness_summary.v1",
+        "warn_count": 0
+      },
+      "governance_summary": {
+        "allow_count": 12,
+        "decision_type_counts": {
+          "permission": 6,
+          "tool_policy": 6
+        },
+        "deny_count": 0,
+        "reasons": {
+          "approval_auto": 1,
+          "policy_ok": 6,
+          "read_only": 4,
+          "write_scope": 1
+        },
+        "schema_version": "pico.governance_summary.v1",
+        "warn_count": 0
+      },
+      "minimal_policy": {
+        "activation_source": "default",
+        "compatibility_notice": "",
+        "compatibility_notice_injected": false,
+        "compatibility_status": "compatible",
+        "effective_mode": "enforce",
+        "mode": "enforce",
+        "policy_version": "minimal-policy-v1",
+        "prefix_policy_hash": "449e315a3548512adfece7f3be3fc441a1dca7b4f4fafc280ab8f2eeef01a314",
+        "prompt_rules_injected": true,
+        "rule_chars": 418,
+        "rule_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+        "updated_at": "2026-08-05T03:08:18.365954+00:00"
+      },
+      "minimality_audit": {
+        "added_lines": null,
+        "audit_status": "passed",
+        "blocking_findings": [],
+        "changed_files": 1,
+        "changed_paths": [
+          "app.py"
+        ],
+        "deleted_lines": null,
+        "dependencies_added": null,
+        "findings": [],
+        "out_of_scope_paths": [],
+        "schema_version": "pico.minimality_audit.v1",
+        "scope_status": "passed",
+        "verification_evidence": {
+          "changed_paths": [
+            "app.py"
+          ],
+          "source_span_id": "span_000063",
+          "state": "passed"
+        },
+        "verification_status": "passed"
+      },
+      "minimality_metrics": {
+        "added_lines": null,
+        "attempts": 6,
+        "cached_input_tokens": 0,
+        "changed_files": 1,
+        "deleted_lines": null,
+        "dependencies_added": null,
+        "duration_ms": 34041,
+        "input_tokens": 4135,
+        "minimal_policy_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+        "minimal_policy_mode": "enforce",
+        "minimal_policy_prompt_chars": 418,
+        "minimal_policy_version": "minimal-policy-v1",
+        "output_tokens": 102,
+        "reasoning_tokens": null,
+        "tool_steps": 6,
+        "verification_status": "passed"
+      },
+      "transition_summary": {
+        "continue_count": 5,
+        "max_attempt_index": 6,
+        "reasons": {
+          "final_answer_returned": 1,
+          "tool_batch_executed": 5
+        },
+        "schema_version": "pico.transition_summary.v1",
+        "terminal_count": 1,
+        "terminal_reason": "final_answer_returned",
+        "tool_executed_count": 6,
+        "tool_requested_count": 6
+      },
+      "verification_signal": {
+        "after_last_workspace_change": true,
+        "changed_paths": [
+          "app.py"
+        ],
+        "changed_paths_present": true,
+        "command": "python -m pytest -q",
+        "command_class": "test",
+        "coverage_confidence": "unknown",
+        "covers_changed_paths": false,
+        "last_workspace_change_span_id": "span_000051",
+        "schema_version": "pico.verification_signal.v1",
+        "source_span_id": "span_000063",
+        "state": "passed"
+      }
+    },
+    "final_answer": "Implemented in `app.py`: `parse_object` now parses JSON, rejects non-object top-level values with `ValueError`, and still supports nested objects. Verified with `python -m pytest -q` — 3 tests passed.",
+    "input_tokens": 4135,
+    "last_tool": "run_shell",
+    "minimal_policy_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+    "minimal_policy_mode": "enforce",
+    "minimal_policy_prompt_chars": 418,
+    "minimal_policy_version": "minimal-policy-v1",
+    "minimality_metrics": {
+      "added_lines": null,
+      "attempts": 6,
+      "cached_input_tokens": 0,
+      "changed_files": 1,
+      "deleted_lines": null,
+      "dependencies_added": null,
+      "duration_ms": 34041,
+      "input_tokens": 4135,
+      "minimal_policy_hash": "90f3d0005ad7697054a77eda1146e73e5ec7af87e724a221627bdb8f0efe780d",
+      "minimal_policy_mode": "enforce",
+      "minimal_policy_prompt_chars": 418,
+      "minimal_policy_version": "minimal-policy-v1",
+      "output_tokens": 102,
+      "reasoning_tokens": null,
+      "tool_steps": 6,
+      "verification_status": "passed"
+    },
+    "output_tokens": 102,
+    "reasoning_tokens": null,
+    "resume_status": "no-checkpoint",
+    "run_id": "run_20260805-110818-d0a11e",
+    "runtime_reminders": [],
+    "status": "completed",
+    "stop_reason": "final_answer_returned",
+    "task_id": "task_20260805-110818-e46195",
+    "todo_changes": [],
+    "tool_steps": 6,
+    "user_request": "Make the JSON input helper enforce its object contract while retaining support for nested JSON objects.\n\nThis is an implementation task, not a code explanation task. Inspect the repository with the available tools and read an existing target file before editing it. Modify only the allowed files with patch_file or write_file when available, rather than shell text replacement. Run the relevant repository tests after the edit, including rerunning a test that failed before the edit. Do not return <final> until the required change has been applied and verified. Allowed change files: app.py.",
+    "verification_status": "passed",
+    "verifier_suggestions": [
+      {
+        "command": "uv run python -m pytest -q",
+        "reason": "Python tests are present"
+      }
+    ]
+  },
+  "todo_changes": [],
+  "todos": {
+    "items": [],
+    "next_id": 1
+  },
+  "tool_steps": 6,
+  "verification_status": "passed",
+  "verified_success": true,
+  "verifier_suggestions": [
+    {
+      "command": "uv run python -m pytest -q",
+      "reason": "Python tests are present"
+    }
+  ],
+  "workers": {
+    "items": [],
+    "next_id": 1
+  }
+}

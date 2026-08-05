@@ -209,3 +209,17 @@ def test_efficiency_metrics_are_null_with_reason_when_no_verified_pass_exists():
     assert summary["efficiency"]["tokens_per_verified_pass"] is None
     assert summary["efficiency"]["tokens_per_verified_pass_reason"] == "no_verified_passes"
     assert summary["efficiency"]["cost_per_verified_pass"] is None
+
+
+def test_paired_deltas_include_every_repetition():
+    rows = [
+        {"task_id": "task", "repetition": 1, "arm": "baseline", "tool_steps": 10},
+        {"task_id": "task", "repetition": 1, "arm": "minimal_policy", "tool_steps": 5},
+        {"task_id": "task", "repetition": 2, "arm": "baseline", "tool_steps": 2},
+        {"task_id": "task", "repetition": 2, "arm": "minimal_policy", "tool_steps": 4},
+    ]
+
+    paired = summarize_minimal_change_results(rows)["paired_deltas"]["minimal_policy"]
+
+    assert paired["tool_steps"]["count"] == 2
+    assert paired["tool_steps"]["mean"] == -1.5

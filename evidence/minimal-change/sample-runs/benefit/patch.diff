@@ -1,0 +1,24 @@
+--- a/app.py
++++ b/app.py
+@@ -1,5 +1,8 @@
+-from pathlib import Path
+-
+-
+-def safe_join(root, relative):
+-    return str(Path(root) / relative)
++from pathlib import Path
+
++
+
++
+
++def safe_join(root, relative):
+
++    child = Path(relative)
+
++    if child.anchor or ".." in child.parts:
+
++        raise ValueError("path must stay within root")
+
++    return str(Path(root) / child)
+
