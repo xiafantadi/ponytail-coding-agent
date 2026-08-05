@@ -20,7 +20,9 @@ from pico import (
     build_welcome,
 )
 from pico.providers import ProviderError
+from pico.core.model_output import parse as parse_model_output
 from pico.core.shell_command import python_shell_command
+from pico.core.task_state import TaskState
 
 
 def build_workspace(tmp_path):
@@ -163,6 +165,53 @@ def test_agent_retries_after_malformed_tool_payload(tmp_path):
     assert any(item["role"] == "tool" and item["name"] == "read_file" for item in agent.session["history"])
     notices = [item["content"] for item in agent.session["history"] if item["role"] == "assistant"]
     assert any("valid <tool> call" in item for item in notices)
+
+
+def test_agent_recovers_complete_json_tool_with_missing_closing_tag(tmp_path):
+    (tmp_path / "hello.txt").write_text("alpha\n", encoding="utf-8")
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool>{"name":"read_file","args":{"path":"hello.txt","start":1,"end":1}}',
+            "<final>Recovered unclosed tool.</final>",
+        ],
+    )
+
+    assert agent.ask("Inspect hello.txt") == "Recovered unclosed tool."
+    assert any(item.get("name") == "read_file" for item in agent.session["history"])
+
+
+def test_agent_retries_incomplete_unclosed_json_tool(tmp_path):
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool>{"name":"read_file","args":',
+            "<final>Recovered after incomplete tool.</final>",
+        ],
+    )
+
+    assert agent.ask("Inspect the workspace") == "Recovered after incomplete tool."
+    notices = [item["content"] for item in agent.session["history"] if item["role"] == "assistant"]
+    assert any("complete valid JSON" in item for item in notices)
+
+
+def test_plain_completion_retry_notice_follows_implementation_state():
+    state = TaskState.create(
+        task_id="task_1",
+        run_id="run_1",
+        user_request="Implement the fix in app.py.",
+    )
+
+    assert "read_file" in parse_model_output("Done.", task_state=state)[1]
+    state.last_tool = "read_file"
+    assert "patch_file or write_file" in parse_model_output("Done.", task_state=state)[1]
+    state.changed_paths = ["app.py"]
+    assert "run_shell" in parse_model_output("Done.", task_state=state)[1]
+    state.evidence_summaries["verification_signal"] = {
+        "state": "passed",
+        "after_last_workspace_change": True,
+    }
+    assert parse_model_output("Done.", task_state=state) == ("final", "Done.")
 
 
 def test_agent_accepts_xml_write_file_tool(tmp_path):
@@ -355,6 +404,110 @@ def test_openai_compatible_client_posts_expected_responses_payload():
         "store": False,
         "temperature": 0.2,
     }
+
+
+def test_openai_compatible_client_sends_native_tools_and_normalizes_function_call():
+    captured = {}
+
+    class FakeResponse:
+        headers = {"Content-Type": "application/json"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "output": [
+                        {
+                            "type": "function_call",
+                            "name": "read_file",
+                            "arguments": '{"path":"README.md"}',
+                        }
+                    ],
+                    "usage": {"input_tokens": 12, "output_tokens": 4},
+                }
+            ).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        del timeout
+        captured["body"] = json.loads(request.data.decode("utf-8"))
+        return FakeResponse()
+
+    native_tools = [
+        {
+            "type": "function",
+            "name": "read_file",
+            "description": "Read a file.",
+            "parameters": {
+                "type": "object",
+                "properties": {"path": {"type": "string"}},
+                "required": ["path"],
+            },
+        }
+    ]
+    client = OpenAICompatibleModelClient(
+        model="gpt-test",
+        base_url="https://example.test/v1",
+        api_key="sk-test",
+        temperature=None,
+        timeout=30,
+    )
+
+    with patch("urllib.request.urlopen", fake_urlopen):
+        result = client.complete("inspect", 42, native_tools=native_tools)
+
+    assert captured["body"]["tools"] == native_tools
+    assert captured["body"]["tool_choice"] == "auto"
+    assert parse_model_output(result) == (
+        "tool",
+        {"name": "read_file", "args": {"path": "README.md"}},
+    )
+    assert client.last_completion_metadata["native_tools_enabled"] is True
+    assert client.last_completion_metadata["native_tool_call_count"] == 1
+    assert client.last_completion_metadata["tool_call_channel"] == "native"
+
+
+def test_openai_compatible_client_keeps_malformed_native_arguments_rejectable():
+    class FakeResponse:
+        headers = {"Content-Type": "application/json"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "output": [
+                        {
+                            "type": "function_call",
+                            "name": "read_file",
+                            "arguments": "not-json",
+                        }
+                    ]
+                }
+            ).encode("utf-8")
+
+    client = OpenAICompatibleModelClient(
+        model="gpt-test",
+        base_url="https://example.test/v1",
+        api_key="sk-test",
+        temperature=None,
+        timeout=30,
+    )
+
+    with patch("urllib.request.urlopen", return_value=FakeResponse()):
+        result = client.complete("inspect", 42, native_tools=[{"type": "function"}])
+
+    kind, notice = parse_model_output(result)
+    assert kind == "retry"
+    assert "tool args must be an object" in notice
 
 
 def test_openai_compatible_client_sends_prompt_cache_fields_and_records_usage():
@@ -569,6 +722,52 @@ def test_openai_compatible_client_extracts_text_from_event_stream():
     assert result == "<final>stream ok</final>"
     assert client.last_completion_metadata["input_tokens"] == 11
     assert client.last_completion_metadata["output_tokens"] == 4
+
+
+def test_openai_compatible_client_extracts_native_tool_from_event_stream():
+    class FakeResponse:
+        headers = {"Content-Type": "text/event-stream"}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return (
+                'data: {"type":"response.output_item.added","output_index":0,'
+                '"item":{"id":"call_1","type":"function_call",'
+                '"name":"read_file","arguments":""}}\n'
+                'data: {"type":"response.function_call_arguments.done",'
+                '"output_index":0,"item_id":"call_1",'
+                '"arguments":"{\\"path\\":\\"README.md\\"}"}\n'
+                'data: {"type":"response.output_item.done","output_index":0,'
+                '"item":{"id":"call_1","type":"function_call",'
+                '"name":"read_file",'
+                '"arguments":"{\\"path\\":\\"README.md\\"}"}}\n'
+                'data: {"type":"response.completed","response":'
+                '{"output":[],"usage":{"input_tokens":11,"output_tokens":4}}}\n'
+                "data: [DONE]\n"
+            ).encode("utf-8")
+
+    client = OpenAICompatibleModelClient(
+        model="gpt-test",
+        base_url="https://example.test/v1",
+        api_key="sk-test",
+        temperature=None,
+        timeout=30,
+    )
+
+    with patch("urllib.request.urlopen", return_value=FakeResponse()):
+        result = client.complete("inspect", 42, native_tools=[{"type": "function"}])
+
+    assert parse_model_output(result) == (
+        "tool",
+        {"name": "read_file", "args": {"path": "README.md"}},
+    )
+    assert client.last_completion_metadata["native_tool_call_count"] == 1
+    assert client.last_completion_metadata["input_tokens"] == 11
 
 
 def test_openai_compatible_client_extracts_text_from_event_stream_deltas():

@@ -14,6 +14,7 @@ import urllib.request
 
 from ..core.content_blocks import ensure_model_input
 from .errors import ProviderError, sanitize_url
+from .native_tools import native_tool_text
 
 OPENAI_COMPATIBLE_USER_AGENT = "pico/0.1"
 RETRYABLE_HTTP_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
@@ -107,6 +108,7 @@ def _extract_openai_response_from_sse(body_text):
     last_response = None
     deltas = []
     completed_text = ""
+    output_items = {}
     for line in body_text.splitlines():
         line = line.strip()
         if not line.startswith("data:"):
@@ -122,9 +124,22 @@ def _extract_openai_response_from_sse(body_text):
         if isinstance(response, dict):
             last_response = response
             if event.get("type") == "response.completed":
+                if output_items and not response.get("output"):
+                    response = {**response, "output": list(output_items.values())}
                 text = _extract_openai_text(response)
                 return text or completed_text or "".join(deltas), response
         event_type = event.get("type", "")
+        item = event.get("item")
+        if isinstance(item, dict) and item.get("type") == "function_call":
+            item_key = item.get("id") or f"index:{event.get('output_index', 0)}"
+            output_items[item_key] = item
+        if event_type == "response.function_call_arguments.done":
+            item_key = event.get("item_id") or f"index:{event.get('output_index', 0)}"
+            if item_key in output_items:
+                output_items[item_key] = {
+                    **output_items[item_key],
+                    "arguments": event.get("arguments", ""),
+                }
         if event_type == "response.output_text.delta":
             delta = event.get("delta")
             if isinstance(delta, str):
@@ -142,7 +157,11 @@ def _extract_openai_response_from_sse(body_text):
     if deltas:
         return "".join(deltas), last_response or {}
     if isinstance(last_response, dict):
+        if output_items and not last_response.get("output"):
+            last_response = {**last_response, "output": list(output_items.values())}
         return _extract_openai_text(last_response), last_response
+    if output_items:
+        return "", {"output": list(output_items.values())}
     return "", {}
 
 
@@ -327,9 +346,17 @@ class OpenAICompatibleModelClient:
         # 当前只在明确支持 prompt cache 语义的后端上启用这条链路，
         # 避免对不支持的后端传一个“看起来统一、其实没意义”的伪参数。
         self.supports_prompt_cache = any(host in self.base_url for host in ("openai.com", "right.codes"))
+        self.supports_native_tools = True
         self.last_completion_metadata = {}
 
-    def complete(self, prompt, max_new_tokens, prompt_cache_key=None, prompt_cache_retention=None):
+    def complete(
+        self,
+        prompt,
+        max_new_tokens,
+        prompt_cache_key=None,
+        prompt_cache_retention=None,
+        native_tools=None,
+    ):
         """向 OpenAI-compatible `/responses` 接口发起一次模型调用。
 
         为什么存在：
@@ -362,6 +389,9 @@ class OpenAICompatibleModelClient:
         }
         if self.temperature is not None:
             payload["temperature"] = self.temperature
+        if native_tools:
+            payload["tools"] = native_tools
+            payload["tool_choice"] = "auto"
         # runtime 传入的是“稳定前缀”的签名，而不是整段 prompt 的签名。
         # 这样缓存复用针对的是稳定段，不会因为动态 history 每轮变化而失效。
         if self.supports_prompt_cache and prompt_cache_key:
@@ -400,6 +430,7 @@ class OpenAICompatibleModelClient:
         stripped_body = body_text.lstrip()
         if content_type.startswith("text/event-stream") or stripped_body.startswith(("data:", "event:")):
             text, response_data = _extract_openai_response_from_sse(body_text)
+            native_text, native_tool_call_count = native_tool_text(response_data)
             if isinstance(response_data, dict) and response_data:
                 # 这些元数据会一路传回 runtime，进入 trace 和 report，
                 # 用来观察 prompt cache 是否真的命中。
@@ -408,9 +439,14 @@ class OpenAICompatibleModelClient:
                     "prompt_cache_key": prompt_cache_key,
                     "prompt_cache_retention": prompt_cache_retention,
                     "image_input_count": image_input_count,
+                    "native_tools_enabled": bool(native_tools),
+                    "native_tool_call_count": native_tool_call_count,
+                    "tool_call_channel": "native" if native_tool_call_count else "text",
                     **request_metadata,
                     **_extract_usage_cache_details(response_data),
                 }
+            if native_text:
+                return native_text
             if text:
                 return text
             error = _provider_failure(
@@ -454,9 +490,19 @@ class OpenAICompatibleModelClient:
             "prompt_cache_key": prompt_cache_key,
             "prompt_cache_retention": prompt_cache_retention,
             "image_input_count": image_input_count,
+            "native_tools_enabled": bool(native_tools),
             **request_metadata,
             **_extract_usage_cache_details(data),
         }
+        native_text, native_tool_call_count = native_tool_text(data)
+        self.last_completion_metadata.update(
+            {
+                "native_tool_call_count": native_tool_call_count,
+                "tool_call_channel": "native" if native_tool_call_count else "text",
+            }
+        )
+        if native_text:
+            return native_text
         text = _extract_openai_text(data)
         if text:
             return text

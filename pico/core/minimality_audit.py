@@ -92,6 +92,8 @@ def _git_diff(root):
             cwd=root,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             timeout=5,
         )
@@ -165,6 +167,8 @@ def _git_head_text(root, path):
             cwd=root,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             timeout=5,
         )

@@ -7,7 +7,9 @@ does not run an agent or replace the existing harness evaluator.
 from __future__ import annotations
 
 import hashlib
+import csv
 import json
+import statistics
 import shutil
 import subprocess
 from pathlib import Path
@@ -422,7 +424,7 @@ def summarize_minimal_change_results(rows):
     fail2pass = sum(1 for row in rows if row.get("fail2pass_passed") is True)
     pass2pass = sum(1 for row in rows if row.get("pass2pass_passed") is True)
     holdout = sum(1 for row in rows if row.get("holdout_verifier_passed") is True)
-    return {
+    summary = {
         "total_tasks": total,
         "passed": passed,
         "failed": total - passed,
@@ -435,3 +437,252 @@ def summarize_minimal_change_results(rows):
         "holdout_verifier_pass_rate": rate(holdout),
         "failure_category_counts": dict(sorted(failure_category_counts.items())),
     }
+    summary["metrics"] = {
+        name: _numeric_stats([_number(row.get(name)) for row in rows])
+        for name in (
+            "attempts",
+            "tool_steps",
+            "duration_ms",
+            "added_lines",
+            "deleted_lines",
+            "changed_files",
+            "dependencies_added_count",
+        )
+    }
+    summary["usage"] = _usage_summary(rows)
+    summary["by_arm"] = {
+        arm: _summarize_arm(group)
+        for arm, group in sorted(_group_rows(rows, "arm").items())
+    }
+    summary["paired_deltas"] = _paired_deltas(rows)
+    verified_passes = passed
+    total_tokens = summary["usage"]["total_tokens"]["sum"]
+    summary["efficiency"] = {
+        "tokens_per_verified_pass": (
+            total_tokens / verified_passes if verified_passes and total_tokens is not None else None
+        ),
+        "tokens_per_verified_pass_reason": (
+            "no_verified_passes" if not verified_passes else "available"
+        ),
+        "cost_per_verified_pass": None,
+        "cost_per_verified_pass_reason": "cost_not_recorded",
+    }
+    return summary
+
+
+def load_minimal_change_csv(path):
+    """Load runner CSV rows into the same shape used by the live aggregator."""
+    rows = []
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            for key in ("passed", "fail2pass_passed", "pass2pass_passed", "holdout_verifier_passed"):
+                row[key] = _boolean(row.get(key))
+            if row.get("usage"):
+                row["usage"] = json.loads(row["usage"])
+            rows.append(row)
+    return rows
+
+
+def recompute_minimal_change_summary(path):
+    """Recompute summary data from a runner CSV without trusting summary.json."""
+    return summarize_minimal_change_results(load_minimal_change_csv(path))
+
+
+def _boolean(value):
+    if isinstance(value, bool):
+        return value
+    return str(value or "").strip().lower() == "true"
+
+
+def _number(value):
+    if value in (None, "", "null"):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _numeric_stats(values):
+    values = [value for value in values if value is not None]
+    if not values:
+        return {"count": 0, "mean": None, "median": None, "sum": None}
+    return {
+        "count": len(values),
+        "mean": statistics.fmean(values),
+        "median": statistics.median(values),
+        "sum": sum(values),
+    }
+
+
+def _usage_summary(rows):
+    values = []
+    for row in rows:
+        usage = row.get("usage")
+        if isinstance(usage, str):
+            try:
+                usage = json.loads(usage)
+            except json.JSONDecodeError:
+                usage = None
+        if isinstance(usage, dict):
+            values.append(usage)
+    return {
+        "runs_with_usage": len(values),
+        "input_tokens": _numeric_stats([_number(item.get("input_tokens")) for item in values]),
+        "output_tokens": _numeric_stats([_number(item.get("output_tokens")) for item in values]),
+        "total_tokens": _numeric_stats([_number(item.get("total_tokens")) for item in values]),
+        "cached_tokens": _numeric_stats([_number(item.get("cached_tokens")) for item in values]),
+    }
+
+
+def _group_rows(rows, key):
+    groups = {}
+    for row in rows:
+        groups.setdefault(str(row.get(key) or "unknown"), []).append(row)
+    return groups
+
+
+def _summarize_arm(rows):
+    total = len(rows)
+    passed = sum(1 for row in rows if _boolean(row.get("passed")) or row.get("status") == "pass")
+    return {
+        "total_runs": total,
+        "passed": passed,
+        "failed": total - passed,
+        "pass_rate": passed / total if total else 0.0,
+        "fail2pass_passed": sum(1 for row in rows if _boolean(row.get("fail2pass_passed"))),
+        "pass2pass_passed": sum(1 for row in rows if _boolean(row.get("pass2pass_passed"))),
+        "holdout_verifier_passed": sum(1 for row in rows if _boolean(row.get("holdout_verifier_passed"))),
+        "failure_category_counts": dict(sorted(_failure_counts(rows).items())),
+    }
+
+
+def _failure_counts(rows):
+    counts = {}
+    for row in rows:
+        category = row.get("failure_category")
+        if category:
+            counts[category] = counts.get(category, 0) + 1
+    return counts
+
+
+def _paired_deltas(rows):
+    groups = _group_rows(rows, "task_id")
+    result = {}
+    for arm in sorted({str(row.get("arm")) for row in rows if row.get("arm") and row.get("arm") != "baseline"}):
+        deltas = {
+            "tool_steps": [],
+            "attempts": [],
+            "total_tokens": [],
+            "added_lines": [],
+            "changed_files": [],
+        }
+        for task_rows in groups.values():
+            baseline = next((row for row in task_rows if row.get("arm") == "baseline"), None)
+            treatment = next((row for row in task_rows if row.get("arm") == arm), None)
+            if not baseline or not treatment:
+                continue
+            for metric in ("tool_steps", "attempts", "added_lines", "changed_files"):
+                before, after = _number(baseline.get(metric)), _number(treatment.get(metric))
+                if before is not None and after is not None:
+                    deltas[metric].append(after - before)
+            before_usage = _usage_dict(baseline)
+            after_usage = _usage_dict(treatment)
+            before, after = _number(before_usage.get("total_tokens")), _number(after_usage.get("total_tokens"))
+            if before is not None and after is not None:
+                deltas["total_tokens"].append(after - before)
+        result[arm] = {metric: _numeric_stats(values) for metric, values in deltas.items()}
+    return result
+
+
+def _usage_dict(row):
+    usage = row.get("usage")
+    if isinstance(usage, str):
+        try:
+            usage = json.loads(usage)
+        except json.JSONDecodeError:
+            return {}
+    return usage if isinstance(usage, dict) else {}
+
+
+def render_minimal_change_report(summary, metadata=None):
+    """Render a concise Markdown report from an aggregated summary."""
+    metadata = dict(metadata or {})
+    total = int(summary.get("total_tasks", 0) or 0)
+    passed = int(summary.get("passed", 0) or 0)
+    lines = [
+        "# Minimal-Change Experiment Report",
+        "",
+        f"- Provider profile: `{metadata.get('provider_profile') or 'not recorded'}`",
+        f"- Model: `{metadata.get('model') or 'not recorded'}`",
+        f"- Runs: {total}",
+        "",
+        "## Outcome",
+        "",
+        "| Metric | Passed | Total | Rate |",
+        "|---|---:|---:|---:|",
+        f"| Task | {passed} | {total} | {_percent(passed, total)} |",
+        f"| Fail2Pass | {summary.get('fail2pass_passed', 0)} | {total} | {_percent(summary.get('fail2pass_passed', 0), total)} |",
+        f"| Pass2Pass | {summary.get('pass2pass_passed', 0)} | {total} | {_percent(summary.get('pass2pass_passed', 0), total)} |",
+        f"| Holdout verifier | {summary.get('holdout_verifier_passed', 0)} | {total} | {_percent(summary.get('holdout_verifier_passed', 0), total)} |",
+        "",
+        "## By Arm",
+        "",
+        "| Arm | Passed | Total | Pass rate | Failures |",
+        "|---|---:|---:|---:|---|",
+    ]
+    for arm, values in sorted((summary.get("by_arm") or {}).items()):
+        failures = ", ".join(
+            f"{key}={value}" for key, value in sorted(values.get("failure_category_counts", {}).items())
+        ) or "none"
+        lines.append(
+            f"| `{arm}` | {values.get('passed', 0)} | {values.get('total_runs', 0)} | "
+            f"{_percent(values.get('passed', 0), values.get('total_runs', 0))} | {failures} |"
+        )
+    lines.extend(["", "## Usage and Efficiency", ""])
+    usage = summary.get("usage", {})
+    for name in ("input_tokens", "output_tokens", "total_tokens"):
+        values = usage.get(name, {})
+        lines.append(
+            f"- {name}: sum={values.get('sum')}, mean={values.get('mean')}, "
+            f"median={values.get('median')}, samples={values.get('count', 0)}"
+        )
+    lines.extend(["", "## Change Metrics", ""])
+    for name in ("added_lines", "deleted_lines", "changed_files", "dependencies_added_count"):
+        values = (summary.get("metrics") or {}).get(name, {})
+        lines.append(
+            f"- {name}: sum={values.get('sum')}, median={values.get('median')}, "
+            f"samples={values.get('count', 0)}"
+        )
+    efficiency = summary.get("efficiency", {})
+    lines.extend(
+        [
+            f"- tokens_per_verified_pass: {efficiency.get('tokens_per_verified_pass')} "
+            f"({efficiency.get('tokens_per_verified_pass_reason')})",
+            f"- cost_per_verified_pass: {efficiency.get('cost_per_verified_pass')} "
+            f"({efficiency.get('cost_per_verified_pass_reason')})",
+            "",
+            "## Paired Deltas",
+            "",
+        ]
+    )
+    for arm, metrics in sorted((summary.get("paired_deltas") or {}).items()):
+        lines.append(f"- `{arm}` versus `baseline`:")
+        for metric, values in sorted(metrics.items()):
+            lines.append(f"  - {metric}: mean={values.get('mean')}, samples={values.get('count', 0)}")
+    lines.extend(
+        [
+            "",
+            "## Limitations",
+            "",
+            "- Failed runs remain in all denominators and failure categories.",
+            "- Cost and LOC metrics are null when the runner does not record them.",
+            "- This local task suite is not an official SWE-bench result.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _percent(passed, total):
+    return "null" if not total else f"{100 * passed / total:.2f}%"

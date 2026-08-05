@@ -6,10 +6,22 @@ from pico.core.final_readiness import (
     readiness_notice,
 )
 from pico.core.task_state import TaskState
+from pico.core.task_intent import request_requires_workspace_change
 
 
 def task_state():
     return TaskState.create(task_id="task_1", run_id="run_1", user_request="demo")
+
+
+def test_task_contract_change_clause_does_not_hide_required_edit():
+    request = (
+        "Normalize the function without changing its public name. "
+        "Inspect the repository and modify only the allowed file."
+    )
+
+    assert request_requires_workspace_change(request) is True
+    assert request_requires_workspace_change("Inspect the repository without changing files.") is False
+    assert request_requires_workspace_change("Review the diff. Do not modify files.") is False
 
 
 def test_final_readiness_detects_unresolved_current_run_high_priority_todo():
@@ -323,6 +335,19 @@ def test_readiness_notice_uses_catalog_messages_not_raw_codes():
     assert "changed_paths_without_verification" not in notice
     assert "Files changed" in notice
     assert "successful verification" in notice
+
+
+def test_readiness_notice_gives_actionable_change_workflow():
+    notice = readiness_notice(
+        {
+            "action": "runtime_notice",
+            "reasons": ["requested_change_not_observed"],
+        }
+    )
+
+    assert "read the target file" in notice.lower()
+    assert "patch_file or write_file" in notice
+    assert "run_shell" in notice
 
 
 def test_final_readiness_summary_has_schema_version():

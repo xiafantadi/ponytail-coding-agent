@@ -1,10 +1,13 @@
 import shutil
+import csv
+import json
 from pathlib import Path
 
 from pico.evaluation.minimal_change import (
     evaluate_minimal_change_result,
     load_minimal_change_tasks,
     run_verification_suite,
+    recompute_minimal_change_summary,
     summarize_minimal_change_results,
 )
 
@@ -152,3 +155,57 @@ def test_summary_counts_rows_and_keeps_failure_categories():
         "fail2pass_failed": 1,
         "pass2pass_regression": 1,
     }
+
+
+def test_summary_can_be_recomputed_from_runs_csv(tmp_path):
+    rows = [
+        {
+            "arm": "baseline",
+            "task_id": "task-a",
+            "status": "pass",
+            "passed": True,
+            "fail2pass_passed": True,
+            "pass2pass_passed": True,
+            "holdout_verifier_passed": True,
+            "tool_steps": 4,
+            "attempts": 2,
+            "usage": {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120},
+        },
+        {
+            "arm": "minimal_policy",
+            "task_id": "task-a",
+            "status": "fail",
+            "passed": False,
+            "fail2pass_passed": False,
+            "pass2pass_passed": True,
+            "holdout_verifier_passed": False,
+            "failure_category": "patch_not_applied",
+            "tool_steps": 1,
+            "attempts": 1,
+            "usage": {"input_tokens": 90, "output_tokens": 10, "total_tokens": 100},
+        },
+    ]
+    path = tmp_path / "runs.csv"
+    fields = sorted({key for row in rows for key in row})
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({key: json.dumps(value) if isinstance(value, dict) else value for key, value in row.items()})
+
+    direct = summarize_minimal_change_results(rows)
+    recomputed = recompute_minimal_change_summary(path)
+
+    assert recomputed == direct
+    assert recomputed["by_arm"]["minimal_policy"]["pass_rate"] == 0.0
+    assert recomputed["paired_deltas"]["minimal_policy"]["tool_steps"]["mean"] == -3.0
+
+
+def test_efficiency_metrics_are_null_with_reason_when_no_verified_pass_exists():
+    summary = summarize_minimal_change_results(
+        [{"status": "fail", "passed": False, "failure_category": "patch_not_applied"}]
+    )
+
+    assert summary["efficiency"]["tokens_per_verified_pass"] is None
+    assert summary["efficiency"]["tokens_per_verified_pass_reason"] == "no_verified_passes"
+    assert summary["efficiency"]["cost_per_verified_pass"] is None

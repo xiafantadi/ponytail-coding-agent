@@ -256,6 +256,7 @@ class Engine:
                     agent.max_new_tokens,
                     prompt_cache_key=prompt_cache_key,
                     prompt_cache_retention=prompt_cache_retention,
+                    tools=agent.available_tools(),
                 )
             except Exception as exc:
                 if agent.abort_requested:
@@ -323,16 +324,16 @@ class Engine:
                 prompt_metadata.update(completion_metadata)
             agent.last_completion_metadata = completion_metadata
             agent.last_prompt_metadata = prompt_metadata
-            kind, payload = agent.parse(raw)
+            kind, payload = agent.parse(raw, task_state=task_state)
             duration_ms = int((time.monotonic() - model_started_at) * 1000)
+            parse_evidence = {
+                "kind": kind,
+                "completion_metadata": completion_metadata,
+                "duration_ms": duration_ms,
+                **({"response_excerpt": clip(raw, 500)} if kind == "retry" else {}),
+            }
             agent.emit_trace(
-                task_state,
-                "model_parsed",
-                {
-                    "kind": kind,
-                    "completion_metadata": completion_metadata,
-                    "duration_ms": duration_ms,
-                },
+                task_state, "model_parsed", parse_evidence,
             )
             agent.session_event_bus.emit(
                 "model_parsed",

@@ -2,13 +2,16 @@ import pytest
 
 from pico.evaluation.minimal_change_experiment import (
     EXPERIMENT_ARMS,
+    TASK_EXECUTION_CONTRACT,
     YAGNI_NOTICE,
     build_experiment_plan,
     build_manifest,
     prompt_for_arm,
     select_tasks,
     validate_experiment_config,
+    write_experiment_artifacts,
 )
+from pico.evaluation.minimal_change import recompute_minimal_change_summary
 
 
 def _tasks():
@@ -35,9 +38,11 @@ def test_experiment_plan_is_deterministic_and_has_one_entry_per_arm():
 def test_arm_prompt_isolation():
     task = _tasks()[0]
 
-    assert prompt_for_arm(task, "baseline") == "Fix A"
+    baseline = prompt_for_arm(task, "baseline")
+    assert baseline.startswith("Fix A\n\n")
+    assert TASK_EXECUTION_CONTRACT in baseline
     assert YAGNI_NOTICE in prompt_for_arm(task, "short_yagni")
-    assert prompt_for_arm(task, "minimal_policy") == "Fix A"
+    assert TASK_EXECUTION_CONTRACT in prompt_for_arm(task, "minimal_policy")
 
 
 def test_manifest_records_fixed_experiment_contract():
@@ -63,3 +68,32 @@ def test_select_tasks_supports_count_and_explicit_ids():
 
     assert [task["task_id"] for task in select_tasks(tasks, 2)] == ["task-a", "task-b"]
     assert [task["task_id"] for task in select_tasks(tasks, "task-c,task-a")] == ["task-c", "task-a"]
+
+
+def test_written_summary_is_reproducible_from_runs_csv(tmp_path):
+    rows = [
+        {
+            "run_key": "task-a__baseline__r1",
+            "arm": "baseline",
+            "task_id": "task-a",
+            "status": "fail",
+            "passed": False,
+            "fail2pass_passed": False,
+            "pass2pass_passed": True,
+            "holdout_verifier_passed": False,
+            "failure_category": "patch_not_applied",
+            "tool_steps": 1,
+            "attempts": 2,
+            "usage": {"input_tokens": 100, "output_tokens": 20, "total_tokens": 120},
+        }
+    ]
+    manifest = {"schema_version": 1, "plan": [{"run_key": rows[0]["run_key"]}]}
+
+    write_experiment_artifacts(tmp_path, manifest, rows)
+
+    import json
+
+    written = json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
+    recomputed = recompute_minimal_change_summary(tmp_path / "runs.csv")
+    assert written == recomputed
+    assert (tmp_path / "report.md").exists()

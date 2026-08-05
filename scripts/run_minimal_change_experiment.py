@@ -125,7 +125,7 @@ def run_experiment(args):
     completed = {row.get("run_key") for row in prior_rows if row.get("run_key")}
     rows = list(prior_rows)
     provider_args = _build_provider_args(
-        provider=args.provider_profile,
+        provider=config.name,
         model=args.model,
         config=args.config,
         base_url=args.base_url,

@@ -514,11 +514,11 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
               <final>your answer</final>
             - Never invent tool results.
             - Keep answers concise and concrete.
-            - If the path is clear, write or patch directly; for multi-file deliverables, batch related writes in one response or one shell script and do not read back files you just wrote.
-            - Before writing tests for existing code, read the implementation first.
+            - Before modifying an existing file, read that file first, then prefer patch_file or write_file over shell text replacement; for multi-file deliverables, batch related writes and do not read back files you just wrote.
+            - Before writing tests for existing code, read the implementation first; after an edit, rerun the relevant verification even if the same command failed before the edit.
             - When writing tests, match the current implementation unless the user explicitly asked you to change the code.
             - New files should be complete and runnable, including obvious imports.
-            - Do not repeat the same tool call with the same arguments if it did not help. Choose a different tool or return a final answer.
+            - Do not repeat the same tool call with the same arguments if workspace state has not changed. Choose a different tool or return a final answer.
             - Required tool arguments must not be empty. Do not call read_file, write_file, patch_file, run_shell, or agent with args={{}}.
             - Use agent for bounded subagents. Explore is read-only; worker writes must stay inside write_scope.
             - Use send_message to continue an existing worker instead of spawning a fresh worker with missing context.

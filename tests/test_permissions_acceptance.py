@@ -1,9 +1,11 @@
 import json
+from unittest.mock import patch
 
 from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
+from pico import OpenAICompatibleModelClient, Pico, SessionStore, WorkspaceContext
 from pico.cli import handle_repl_command
 from pico.core.permissions import PermissionDecision
+from pico.core.tool_repetition import is_repeated_tool_call
 from pico.features.sandbox.config import SandboxConfig
 
 
@@ -59,6 +61,83 @@ def test_permission_checker_is_the_single_default_tool_gate(tmp_path):
     )
 
 
+def test_native_provider_tool_call_still_passes_through_permission_gate(tmp_path):
+    captured = {}
+    responses = [
+        {
+            "output": [
+                {
+                    "type": "function_call",
+                    "name": "run_shell",
+                    "arguments": '{"command":"echo blocked","timeout":20}',
+                }
+            ]
+        },
+        {"output_text": "<final>The command was denied.</final>"},
+    ]
+
+    class FakeResponse:
+        headers = {"Content-Type": "application/json"}
+
+        def __init__(self, body):
+            self.body = body
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return json.dumps(self.body).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        del timeout
+        captured.setdefault("requests", []).append(
+            json.loads(request.data.decode("utf-8"))
+        )
+        return FakeResponse(responses.pop(0))
+
+    (tmp_path / "README.md").write_text("demo\n", encoding="utf-8")
+    client = OpenAICompatibleModelClient(
+        model="gpt-test",
+        base_url="https://example.test/v1",
+        api_key="sk-test",
+        temperature=None,
+        timeout=30,
+    )
+    agent = Pico(
+        model_client=client,
+        workspace=WorkspaceContext.build(tmp_path),
+        session_store=SessionStore(tmp_path / ".pico" / "sessions"),
+        approval_policy="never",
+    )
+
+    with patch("urllib.request.urlopen", fake_urlopen):
+        answer = agent.ask("Inspect permission behavior and report the result.")
+
+    assert answer == "The command was denied."
+    first_request = captured["requests"][0]
+    read_file_spec = next(
+        item for item in first_request["tools"] if item["name"] == "read_file"
+    )
+    assert first_request["tool_choice"] == "auto"
+    assert read_file_spec["parameters"]["required"] == ["path"]
+    assert read_file_spec["parameters"]["properties"]["path"]["type"] == "string"
+    assert any(
+        item.get("role") == "tool"
+        and item.get("name") == "run_shell"
+        and "approval denied" in item.get("content", "")
+        for item in agent.session["history"]
+    )
+    assert any(
+        event["event"] == "permission_decision"
+        and event["tool_name"] == "run_shell"
+        and event["decision"] == "deny"
+        for event in read_session_events(agent)
+    )
+
+
 def test_run_shell_required_sandbox_fails_closed_after_permission(tmp_path):
     agent = build_agent(
         tmp_path,
@@ -90,6 +169,34 @@ def test_run_shell_best_effort_sandbox_degrades_and_keeps_permission_gate(tmp_pa
     assert any(
         event["event"] == "sandbox_unavailable" for event in read_session_events(agent)
     )
+
+
+def test_shell_verification_can_repeat_after_a_distinct_workspace_change():
+    test_args = {"command": "python -m pytest -q", "timeout": 20}
+    history = [
+        {"role": "user", "content": "fix the bug"},
+        {"role": "tool", "name": "run_shell", "args": test_args, "workspace_changed": False},
+        {"role": "tool", "name": "run_shell", "args": test_args, "workspace_changed": False},
+        {
+            "role": "tool",
+            "name": "patch_file",
+            "args": {"path": "app.py", "old_text": "bad", "new_text": "good"},
+            "workspace_changed": True,
+        },
+    ]
+
+    assert is_repeated_tool_call(history, "run_shell", test_args) is False
+
+
+def test_repeated_shell_mutation_does_not_reset_its_own_guard():
+    edit_args = {"command": "python rewrite.py", "timeout": 20}
+    history = [
+        {"role": "user", "content": "fix the bug"},
+        {"role": "tool", "name": "run_shell", "args": edit_args, "workspace_changed": True},
+        {"role": "tool", "name": "run_shell", "args": edit_args, "workspace_changed": True},
+    ]
+
+    assert is_repeated_tool_call(history, "run_shell", edit_args) is True
 
 
 def test_plan_mode_switches_tool_profile_and_allows_only_active_plan_file(tmp_path):

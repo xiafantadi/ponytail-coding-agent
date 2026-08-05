@@ -253,6 +253,9 @@ def test_parse_retry_transition_preserves_stream_order(tmp_path):
         "turn_finished",
     ]
     trace = read_jsonl(agent.current_run_dir / "trace.jsonl")
+    parsed = [event for event in trace if event["event"] == "model_parsed"]
+    assert parsed[0]["response_excerpt"] == "malformed response"
+    assert "response_excerpt" not in parsed[1]
     transitions = [event for event in trace if event["event"] == "loop_transition"]
     assert [event["reason"] for event in transitions] == [
         "parse_retry",

@@ -3,8 +3,10 @@
 import json
 import re
 
+from .task_intent import request_requires_workspace_change
 
-def parse(raw):
+
+def parse(raw, task_state=None):
     raw = str(raw)
     if "<tool" in raw and (
         "<final>" not in raw or raw.find("<tool") < raw.find("<final>")
@@ -20,7 +22,40 @@ def parse(raw):
 
     if not raw.strip():
         return "retry", retry_notice("empty response")
+    if _verified_plain_final(task_state, raw):
+        return "final", raw.strip()
+    implementation_problem = _implementation_retry_problem(task_state)
+    if implementation_problem:
+        return "retry", retry_notice(implementation_problem)
     return "retry", retry_notice("missing <tool> or <final> tag")
+
+
+def _verified_plain_final(task_state, raw):
+    if task_state is None or "<tool" in str(raw):
+        return False
+    verification = dict(
+        (getattr(task_state, "evidence_summaries", {}) or {}).get(
+            "verification_signal", {}
+        )
+        or {}
+    )
+    return (
+        bool(getattr(task_state, "changed_paths", []) or [])
+        and verification.get("state") == "passed"
+        and verification.get("after_last_workspace_change") is True
+    )
+
+
+def _implementation_retry_problem(task_state):
+    if task_state is None or not request_requires_workspace_change(
+        getattr(task_state, "user_request", "")
+    ):
+        return ""
+    if getattr(task_state, "changed_paths", []) or []:
+        return "workspace changed but is not verified; return a valid run_shell tool call"
+    if getattr(task_state, "last_tool", "") in {"read_file", "patch_file", "write_file"}:
+        return "workspace change is not applied; return a valid patch_file or write_file tool call"
+    return "workspace change is not started; return a valid read_file tool call for the target"
 
 
 def retry_notice(problem=None):
@@ -73,6 +108,19 @@ def parse_tool_blocks(raw):
             errors.append(parsed_json)
             continue
         tools.extend(parsed_json)
+    if not tools and not errors:
+        unclosed = re.search(r"<tool\s*>(?P<body>.+)\s*$", str(raw), flags=re.DOTALL)
+        if unclosed:
+            try:
+                payload = json.loads(unclosed.group("body").strip())
+            except json.JSONDecodeError:
+                errors.append("unclosed tool payload must be complete valid JSON")
+            else:
+                parsed_json = normalize_tool_payload(payload)
+                if isinstance(parsed_json, str):
+                    errors.append(parsed_json)
+                else:
+                    tools.extend(parsed_json)
     if tools:
         return tools
     if errors:

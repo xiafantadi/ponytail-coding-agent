@@ -4,16 +4,15 @@ _EXPLICIT_WRITE_TOOLS = ("write_file", "patch_file", "delete_file", "move_file")
 _READ_ONLY_MARKERS = (
     "without changing",
     "without modifying",
-    "read-only",
     "只读",
     "仅查看",
     "只检查",
 )
+_HARD_READ_ONLY_MARKERS = ("read-only", "do not modify files", "do not modify the workspace", "do not change files", "do not write files", "do not edit files")
 _NON_WORKSPACE_CHANGE_MARKERS = ("# dream:", "memory consolidation", "memory directory:")
 _CHANGE_MARKERS = (
     "fix",
     "modify",
-    "change",
     "implement",
     "refactor",
     "修复",
@@ -45,8 +44,12 @@ def request_requires_workspace_change(request):
     text = str(request or "").lower()
     if any(marker in text for marker in _NON_WORKSPACE_CHANGE_MARKERS):
         return False
+    if any(marker in text for marker in _HARD_READ_ONLY_MARKERS):
+        return False
     if any(marker in text for marker in _EXPLICIT_WRITE_TOOLS):
+        return True
+    if any(marker in text for marker in (*_CHANGE_MARKERS, *_WORKSPACE_ACTION_MARKERS)):
         return True
     if any(marker in text for marker in _READ_ONLY_MARKERS):
         return False
-    return any(marker in text for marker in (*_CHANGE_MARKERS, *_WORKSPACE_ACTION_MARKERS))
+    return " change " in f" {text} "

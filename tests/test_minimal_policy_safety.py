@@ -94,3 +94,17 @@ def test_external_verifier_rejects_deleted_input_validation(tmp_path):
     result = run_verifier([sys.executable, "verify.py"], cwd=tmp_path)
 
     assert result.returncode != 0
+
+
+def test_external_verifier_decodes_utf8_output_on_windows(tmp_path):
+    script = tmp_path / "emit_utf8.py"
+    script.write_text(
+        "import sys\n"
+        "sys.stdout.buffer.write('验证通过\\n'.encode('utf-8'))\n",
+        encoding="utf-8",
+    )
+
+    result = run_verifier([sys.executable, str(script)], cwd=tmp_path)
+
+    assert result.returncode == 0
+    assert "验证通过" in result.stdout

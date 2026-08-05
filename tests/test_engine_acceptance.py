@@ -199,3 +199,24 @@ def test_verification_signal_passes_after_workspace_verification(tmp_path):
     assert report["verification_status"] == "passed"
     assert report["verified_success"] is True
     assert "notes/result.py" in signal["changed_paths"]
+
+
+def test_verified_plain_text_completion_is_accepted_as_final(tmp_path):
+    command = python_shell_command("-m", "compileall", "notes")
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool name="write_file" path="notes/result.py"><content>VALUE = 1\n</content></tool>',
+            f'<tool>{{"name":"run_shell","args":{{"command":{json.dumps(command)},"timeout":20}}}}</tool>',
+            "Verified without a final wrapper.",
+        ],
+        max_steps=3,
+    )
+
+    events = list(agent.engine.run_turn("write and verify python code"))
+
+    assert events[-2]["content"] == "Verified without a final wrapper."
+    report = json.loads((agent.current_run_dir / "report.json").read_text(encoding="utf-8"))
+    assert report["runtime_completion"] == "completed"
+    assert report["verification_status"] == "passed"
+    assert report["verified_success"] is True

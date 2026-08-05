@@ -26,7 +26,22 @@ def is_repeated_tool_call(history, name, args):
         return not _failed_file_write_retry_is_now_informed(
             current_turn, last_index, last_match
         )
+    if matches:
+        last_progress = _last_distinct_workspace_change(current_turn, name, args)
+        if last_progress >= 0:
+            matches = [match for match in matches if match[0] > last_progress]
     return len(matches) >= 2
+
+
+def _last_distinct_workspace_change(current_turn, name, args):
+    indexes = [
+        index
+        for index, item in enumerate(current_turn)
+        if item.get("role") == "tool"
+        and item.get("workspace_changed") is True
+        and not (item.get("name") == name and item.get("args") == args)
+    ]
+    return indexes[-1] if indexes else -1
 
 
 def _media_path_inspection_count(tool_events, args):

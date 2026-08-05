@@ -65,9 +65,15 @@ def readiness_notice(decision):
     text = "\n".join(f"- {message}" for message in messages) or "- Readiness warning."
     if decision.get("action") == "block":
         return f"Final answer blocked by runtime readiness gate:\n{text}"
+    next_action = ""
+    if "requested_change_not_observed" in decision.get("reasons", []):
+        next_action = (
+            "\nRead the target file, apply the change with patch_file or write_file "
+            "when available, then verify it with run_shell."
+        )
     return (
         "Before final answer, address this runtime readiness issue:\n"
-        f"{text}\nReturn final again only after addressing it or explaining why it is unavailable."
+        f"{text}{next_action}\nReturn final again only after addressing it or explaining why it is unavailable."
     )
 
 

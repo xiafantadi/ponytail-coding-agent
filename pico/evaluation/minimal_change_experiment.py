@@ -19,6 +19,7 @@ from ..features.minimal_policy import MinimalChangePolicy
 from ..providers.runtime import build_model_client
 from .minimal_change import (
     evaluate_minimal_change_result,
+    render_minimal_change_report,
     run_verification_suite,
     summarize_minimal_change_results,
 )
@@ -30,6 +31,14 @@ YAGNI_NOTICE = (
     "Prefer the smallest correct implementation. Reuse existing code and dependencies "
     "before adding abstractions. Preserve required safety behavior and tests."
 )
+TASK_EXECUTION_CONTRACT = (
+    "This is an implementation task, not a code explanation task. Inspect the repository "
+    "with the available tools and read an existing target file before editing it. Modify "
+    "only the allowed files with patch_file or write_file when available, rather than "
+    "shell text replacement. Run the relevant repository tests after the edit, including "
+    "rerunning a test that failed before the edit. Do not return <final> until the required "
+    "change has been applied and verified."
+)
 
 
 def _git_sha():
@@ -38,6 +47,8 @@ def _git_sha():
             ["git", "rev-parse", "HEAD"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             timeout=5,
         ).stdout.strip()
@@ -100,7 +111,13 @@ def build_experiment_plan(tasks, arms, repetitions=1, seed=0):
 
 
 def prompt_for_arm(task, arm):
-    prompt = str(task["prompt"])
+    allowed_paths = ", ".join(str(path) for path in task.get("allowed_change_paths", []))
+    scope_notice = (
+        f"Allowed change files: {allowed_paths}."
+        if allowed_paths
+        else "Follow the task's declared change scope."
+    )
+    prompt = f"{task['prompt']}\n\n{TASK_EXECUTION_CONTRACT} {scope_notice}"
     if arm == "short_yagni":
         return prompt + "\n\n" + YAGNI_NOTICE
     return prompt
@@ -217,7 +234,16 @@ def run_one(task, entry, *, output_dir, provider_args, max_steps, timeout):
                 "runtime_run_id": task_state["run_id"],
                 "duration_ms": round((time.monotonic() - started) * 1000, 2),
                 "model": getattr(agent.model_client, "model", ""),
-                "provider": getattr(agent.model_client, "provider", ""),
+                "provider": getattr(provider_args, "provider", "")
+                or getattr(agent.model_client, "provider", ""),
+                "added_lines": task_state.get("added_lines"),
+                "deleted_lines": task_state.get("deleted_lines"),
+                "changed_files": len(task_state.get("changed_paths", []) or []),
+                "dependencies_added_count": (
+                    len(task_state.get("dependencies_added", []) or [])
+                    if task_state.get("dependencies_added") is not None
+                    else None
+                ),
             }
         )
     except Exception as exc:
@@ -240,6 +266,7 @@ def write_experiment_artifacts(output_dir, manifest, rows):
         for row in rows:
             writer.writerow({key: json.dumps(value, ensure_ascii=True) if isinstance(value, (dict, list)) else value for key, value in row.items()})
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (output_dir / "report.md").write_text(render_minimal_change_report(summary, manifest), encoding="utf-8")
     return manifest
 
 
