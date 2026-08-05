@@ -3,10 +3,10 @@ import os
 import subprocess
 import sys
 
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.cli import handle_repl_command
-from pico.features import skills as skillslib
+from ponytail.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.cli import handle_repl_command
+from ponytail.features import skills as skillslib
 
 
 def build_agent(tmp_path, outputs):
@@ -308,7 +308,7 @@ def test_cli_lists_skills_without_calling_model(tmp_path):
     env = os.environ.copy()
     env["PYTHONPATH"] = os.getcwd()
     result = subprocess.run(
-        [sys.executable, "-m", "pico", "--cwd", str(tmp_path)],
+        [sys.executable, "-m", "ponytail", "--cwd", str(tmp_path)],
         input="/skills\n/exit\n",
         text=True,
         capture_output=True,

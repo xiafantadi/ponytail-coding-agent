@@ -1,7 +1,7 @@
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.context_budget_summary import context_budget_summary
-from pico.core.context_manager import ContextManager
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.core.context_budget_summary import context_budget_summary
+from ponytail.core.context_manager import ContextManager
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs=None):

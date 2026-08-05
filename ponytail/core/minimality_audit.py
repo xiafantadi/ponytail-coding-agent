@@ -65,7 +65,7 @@ def audit_minimality(
     line_stats = _line_stats(diff, changed)
     dependencies = _added_dependencies(root, diff, changed)
     return {
-        "schema_version": "pico.minimality_audit.v1",
+        "schema_version": "ponytail.minimality_audit.v1",
         "audit_status": "failed" if blocking else "findings" if findings else "passed",
         "changed_files": len(changed),
         "changed_paths": changed,

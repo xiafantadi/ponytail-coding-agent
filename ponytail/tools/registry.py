@@ -60,7 +60,7 @@ from .schemas import (
     WriteFileArgs,
     first_error_message,
 )
-from pico.core.shell_command import run_shell_process
+from ponytail.core.shell_command import run_shell_process
 
 _TOOL_SCHEMAS = {
     "list_files": ListFilesArgs,

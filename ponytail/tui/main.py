@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sys
 
-from pico.cli import build_agent, build_arg_parser
-from pico.tui.app import PicoTuiApp
+from ponytail.cli import build_agent, build_arg_parser
+from ponytail.tui.app import PicoTuiApp
 
 
 def main(argv=None):

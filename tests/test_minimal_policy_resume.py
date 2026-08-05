@@ -1,9 +1,9 @@
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.cli import handle_repl_command
-from pico.core.task_state import TaskState
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.cli import handle_repl_command
+from ponytail.core.task_state import TaskState
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs=None, *, session_store=None, **kwargs):

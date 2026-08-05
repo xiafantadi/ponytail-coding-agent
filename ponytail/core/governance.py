@@ -5,7 +5,7 @@ explain what the runtime permitted or blocked. This module summarizes decisions
 but does not enforce policy itself.
 """
 
-GOVERNANCE_SUMMARY_SCHEMA = "pico.governance_summary.v1"
+GOVERNANCE_SUMMARY_SCHEMA = "ponytail.governance_summary.v1"
 
 
 def record_governance_decision(

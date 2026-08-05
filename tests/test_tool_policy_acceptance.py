@@ -3,9 +3,9 @@
 import json
 import subprocess
 
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.features.sandbox.config import SandboxConfig
+from ponytail.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.features.sandbox.config import SandboxConfig
 
 
 def build_agent(tmp_path, outputs=None, **kwargs):
@@ -163,7 +163,7 @@ def test_tool_governance_decisions_are_run_trace_evidence(tmp_path):
         (agent.current_run_dir / "report.json").read_text(encoding="utf-8")
     )
     assert report["evidence_summaries"]["governance_summary"] == {
-        "schema_version": "pico.governance_summary.v1",
+        "schema_version": "ponytail.governance_summary.v1",
         "allow_count": 1,
         "deny_count": 2,
         "warn_count": 0,

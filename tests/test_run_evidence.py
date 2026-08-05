@@ -1,6 +1,6 @@
 import json
 
-from pico.evaluation.run_evidence import RunEvidence
+from ponytail.evaluation.run_evidence import RunEvidence
 
 
 def test_run_evidence_reads_trace_report_and_session_artifacts(tmp_path):

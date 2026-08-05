@@ -1,8 +1,8 @@
 import subprocess
 import sys
 
-from pico.core.minimality_audit import audit_minimality
-from pico.evaluation.verifier import run_verifier
+from ponytail.core.minimality_audit import audit_minimality
+from ponytail.evaluation.verifier import run_verifier
 
 
 def git(root, *args):

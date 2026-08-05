@@ -6,7 +6,7 @@ import re
 
 from .shell_command import split_shell_args
 
-VERIFICATION_SIGNAL_SCHEMA = "pico.verification_signal.v1"
+VERIFICATION_SIGNAL_SCHEMA = "ponytail.verification_signal.v1"
 
 
 def reduce_verification_signal(previous, event, changed_paths):

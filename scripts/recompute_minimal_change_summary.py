@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
-from pico.evaluation.minimal_change import (
+from ponytail.evaluation.minimal_change import (
     recompute_minimal_change_summary,
     render_minimal_change_report,
 )

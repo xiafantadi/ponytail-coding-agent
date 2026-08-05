@@ -2,8 +2,8 @@ import json
 import threading
 import time
 
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
+from ponytail.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
 
 
 def build_agent(tmp_path, outputs, **kwargs):

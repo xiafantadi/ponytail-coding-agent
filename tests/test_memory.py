@@ -3,9 +3,9 @@ import hashlib
 import subprocess
 from datetime import date
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.features.memory_lint import SECRET_PATTERNS
-from pico.features.memory import (
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.features.memory_lint import SECRET_PATTERNS
+from ponytail.features.memory import (
     LayeredMemory,
     append_to_daily_log,
     build_dream_prompt,
@@ -21,7 +21,7 @@ from pico.features.memory import (
     try_acquire_lock,
     workspace_fingerprint,
 )
-from pico.testing import ScriptedModelClient
+from ponytail.testing import ScriptedModelClient
 
 
 def build_runtime_agent(tmp_path, outputs, **kwargs):

@@ -1,4 +1,4 @@
-from pico.providers.errors import sanitize_url
+from ponytail.providers.errors import sanitize_url
 
 
 def test_sanitize_url_drops_credentials_query_and_fragment_from_malformed_url():

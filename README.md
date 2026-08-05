@@ -61,11 +61,11 @@ TUI 直接连接同一个 runtime。输入框、工具结果、状态栏、slash
 
 | 工具和子 agent | Skills、help 和命令补全 |
 | --- | --- |
-| ![pico TUI 工具表](assets/screenshots/pico-tui-tools.png) | ![pico TUI skills 和 help](assets/screenshots/pico-tui-skills-help.png) |
+| ![Ponytail TUI 工具表](assets/screenshots/pico-tui-tools.png) | ![Ponytail TUI skills 和 help](assets/screenshots/pico-tui-skills-help.png) |
 
 | Memory 和 durable topics | Slash command 工作区 |
 | --- | --- |
-| ![pico TUI memory 和 skills](assets/screenshots/pico-tui-memory-skills.png) | ![pico TUI slash command 补全](assets/screenshots/pico-tui-latest.png) |
+| ![Ponytail TUI memory 和 skills](assets/screenshots/pico-tui-memory-skills.png) | ![Ponytail TUI slash command 补全](assets/screenshots/pico-tui-latest.png) |
 
 ## 安装
 
@@ -282,7 +282,7 @@ ponytail --no-auto-dream              # 关闭后台 memory 整合
 ## 项目结构
 
 ```text
-pico/
+ponytail/
 ├── cli.py                 # CLI 参数、启动模式、REPL 命令
 ├── config/                # provider profile、TOML、env 解析
 ├── core/                  # runtime、engine、session、workers、context
@@ -347,6 +347,6 @@ PICO_LIVE_SMOKE=1 pytest tests/test_release_smoke.py -q
 
 ## 兼容性与来源
 
-Ponytail 在既有 Pico v3 Runtime 代码基础上进行二次工程开发，新增原生工具调用、最终回答门禁、最小改动策略、真实缺陷任务适配与可复算评测证据。为避免破坏已有配置和脚本，内部 Python package、数据目录以及 `pico` CLI 继续作为兼容接口保留，推荐的新入口为 `ponytail`。
+Ponytail 在既有 Pico v3 Runtime 代码基础上进行二次工程开发，新增原生工具调用、最终回答门禁、最小改动策略、真实缺陷任务适配与可复算评测证据。源码包已迁移为 `ponytail`；为避免破坏已有配置和脚本，`.pico/` 数据目录、`.pico.toml`、`PICO_*` 环境变量以及 `pico` CLI 继续作为兼容接口保留，推荐的新入口为 `ponytail`。
 
 当前仓库未附独立开源许可证。公开或再分发前，应以原始代码授权和购买协议为准；本说明不构成额外授权。

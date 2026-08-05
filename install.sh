@@ -64,7 +64,7 @@ main() {
 
     cat > "$LAUNCHER" <<EOF
 #!/usr/bin/env bash
-exec "${VENV_DIR}/bin/pico" "\$@"
+exec "${VENV_DIR}/bin/ponytail" "\$@"
 EOF
     chmod +x "$LAUNCHER"
 

@@ -1,6 +1,6 @@
 # 配置
 
-pico 的配置按下面这个优先级合并：
+Ponytail 的配置按下面这个优先级合并：
 
 ```
 CLI 显式参数 > 环境变量 > 项目 .pico.toml > 全局 ~/.config/pico/config.toml > 代码默认
@@ -39,9 +39,9 @@ model = "claude-sonnet-4-6"
 切 provider：
 
 ```bash
-pico                       # 用 toml 里的默认 provider
-pico --provider openai     # 临时切换
-pico --provider anthropic --model claude-opus-4-6
+Ponytail                       # 用 toml 里的默认 provider
+ponytail --provider openai     # 临时切换
+ponytail --provider anthropic --model claude-opus-4-6
 ```
 
 ## 环境变量
@@ -65,19 +65,19 @@ pico --provider anthropic --model claude-opus-4-6
 ## CLI 参数
 
 ```bash
-pico --provider deepseek --model deepseek-v4-pro
-pico --api-key sk-... --base-url https://...
-pico --max-steps 50 --max-new-tokens 4096
-pico --temperature 0.0
-pico --approval ask          # ask | auto | never
-pico --sandbox best_effort   # off | best_effort | required
-pico --no-auto-dream         # 关闭后台 memory 整合
-pico --cwd /path/to/repo     # 切换工作目录
-pico --resume latest         # 续接上一个 session
-pico --config /path/to/custom.toml
+ponytail --provider deepseek --model deepseek-v4-pro
+ponytail --api-key sk-... --base-url https://...
+ponytail --max-steps 50 --max-new-tokens 4096
+ponytail --temperature 0.0
+ponytail --approval ask          # ask | auto | never
+ponytail --sandbox best_effort   # off | best_effort | required
+ponytail --no-auto-dream         # 关闭后台 memory 整合
+ponytail --cwd /path/to/repo     # 切换工作目录
+ponytail --resume latest         # 续接上一个 session
+ponytail --config /path/to/custom.toml
 ```
 
-跑 `pico --help` 看完整参数。
+跑 `ponytail --help` 看完整参数。
 
 ## 默认值速查
 

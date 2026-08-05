@@ -12,9 +12,9 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pico.config import resolve_provider_config  # noqa: E402
-from pico.evaluation.minimal_change import load_minimal_change_tasks  # noqa: E402
-from pico.evaluation.minimal_change_experiment import (  # noqa: E402
+from ponytail.config import resolve_provider_config  # noqa: E402
+from ponytail.evaluation.minimal_change import load_minimal_change_tasks  # noqa: E402
+from ponytail.evaluation.minimal_change_experiment import (  # noqa: E402
     EXPERIMENT_ARMS,
     _build_provider_args,
     build_manifest,

@@ -5,7 +5,7 @@ one place. The catalog is intentionally data-only; gate behavior belongs in
 final_readiness.py.
 """
 
-FINAL_READINESS_SUMMARY_SCHEMA = "pico.final_readiness_summary.v1"
+FINAL_READINESS_SUMMARY_SCHEMA = "ponytail.final_readiness_summary.v1"
 
 READINESS_REASONS = {
     "changed_paths_without_verification": (

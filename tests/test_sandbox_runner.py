@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pico.features.sandbox.config import SandboxConfig
-from pico.features.sandbox.runner import SandboxRunner
-from pico.core.shell_command import python_shell_command
+from ponytail.features.sandbox.config import SandboxConfig
+from ponytail.features.sandbox.runner import SandboxRunner
+from ponytail.core.shell_command import python_shell_command
 
 
 def test_required_sandbox_rejects_when_backend_is_unavailable(tmp_path):

@@ -18,7 +18,7 @@ else:  # pragma: no cover - covered on Python 3.10 by dependency resolution
 ENV_KEY_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 DEFAULT_PROVIDER = "openai"
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "pico" / "config.toml"
-PROJECT_CONFIG_NAME = ".pico.toml"
+PROJECT_CONFIG_NAME = ".ponytail.toml"
 
 
 @dataclass(frozen=True)

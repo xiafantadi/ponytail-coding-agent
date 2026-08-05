@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Literal
 
-HOOK_SUMMARY_SCHEMA = "pico.before_final_hook_summary.v1"
+HOOK_SUMMARY_SCHEMA = "ponytail.before_final_hook_summary.v1"
 HOOK_ACTIONS = {"allow", "warn", "runtime_notice", "block"}
 
 

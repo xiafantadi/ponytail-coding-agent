@@ -7,10 +7,10 @@ Pydantic models underneath.
 
 import pytest
 
-from pico.core.runtime import Pico
-from pico.core.session_store import SessionStore
-from pico.core.workspace import WorkspaceContext
-from pico.testing import ScriptedModelClient
+from ponytail.core.runtime import Pico
+from ponytail.core.session_store import SessionStore
+from ponytail.core.workspace import WorkspaceContext
+from ponytail.testing import ScriptedModelClient
 
 
 def build_workspace(tmp_path):

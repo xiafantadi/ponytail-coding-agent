@@ -1,7 +1,7 @@
 import json
 
-from pico.testing import ScriptedModelClient
-from pico import Engine, Pico, SessionEventBus, SessionStore, WorkspaceContext
+from ponytail.testing import ScriptedModelClient
+from ponytail import Engine, Pico, SessionEventBus, SessionStore, WorkspaceContext
 
 
 def build_agent(tmp_path, outputs, **kwargs):
@@ -154,7 +154,7 @@ def test_plan_mode_tools_enter_and_exit_runtime_mode(tmp_path):
 def test_plan_path_accepts_absolute_path_inside_workspace(tmp_path):
     """模型偶尔给绝对路径，如 /Users/u/repo/.pico/plans/foo —— 自动相对化，
     不应该让 agent 多走一次重试。"""
-    from pico.core.plan_mode import _plan_path
+    from ponytail.core.plan_mode import _plan_path
 
     assert (
         _plan_path("Student Mgmt", "/Users/u/repo/.pico/plans/student-mgmt.md")
@@ -173,13 +173,13 @@ def test_plan_path_accepts_absolute_path_inside_workspace(tmp_path):
 
 
 def test_provider_surface_allows_profiles_without_reintroducing_ollama_client():
-    import pico
+    import ponytail
 
-    parser = pico.build_arg_parser()
+    parser = ponytail.build_arg_parser()
     provider_action = next(
         action for action in parser._actions if action.dest == "provider"
     )
 
     assert provider_action.choices is None
-    assert not hasattr(pico, "OllamaModelClient")
+    assert not hasattr(ponytail, "OllamaModelClient")
     assert parser.parse_args(["--provider", "deepseek"]).provider == "deepseek"

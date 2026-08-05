@@ -2,7 +2,7 @@ import json
 import hashlib
 import subprocess
 
-from pico.features.memory_lint import lint_memory_dir
+from ponytail.features.memory_lint import lint_memory_dir
 
 
 def _write_memory_fixture(root, note_texts, metadata_rows):
@@ -57,7 +57,7 @@ def test_memory_lint_dirty_fixture_reports_exactly_five_findings():
 
 def test_memory_lint_cli_returns_one_for_findings():
     result = subprocess.run(
-        ["uv", "run", "python", "-m", "pico.features.memory_lint", "tests/fixtures/memory_lint_dirty"],
+        ["uv", "run", "python", "-m", "ponytail.features.memory_lint", "tests/fixtures/memory_lint_dirty"],
         check=False,
         capture_output=True,
         text=True,

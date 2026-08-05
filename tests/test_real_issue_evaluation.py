@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from pico.evaluation.real_issue import (
+from ponytail.evaluation.real_issue import (
     build_runtime_task,
     enrich_real_issue_row,
     load_real_issue_tasks,

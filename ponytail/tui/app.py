@@ -35,7 +35,7 @@ class PicoTuiApp(App):
     """Textual shell for the existing Pico runtime.
 
     The TUI is deliberately a presentation layer: CLI argument parsing and agent
-    construction still live in `pico.cli`, while turns are driven through the
+    construction still live in `ponytail.cli`, while turns are driven through the
     same `Engine.run_turn()` generator that powers the plain REPL.
     """
 

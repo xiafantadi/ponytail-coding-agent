@@ -1,7 +1,7 @@
 import json
 
-from pico.evaluation.memory_agent_eval import run_memory_agent_eval_v1
-from pico.evaluation.metrics import main as metrics_main, write_benchmark_core_report
+from ponytail.evaluation.memory_agent_eval import run_memory_agent_eval_v1
+from ponytail.evaluation.metrics import main as metrics_main, write_benchmark_core_report
 
 
 def _write_json(path, payload):

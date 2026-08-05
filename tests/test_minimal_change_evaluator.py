@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from pico.evaluation.minimal_change import (
+from ponytail.evaluation.minimal_change import (
     INVALID_TASK_STATUS,
     fixture_snapshot_id,
     load_minimal_change_tasks,

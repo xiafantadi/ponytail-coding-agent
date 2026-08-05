@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from pico.evaluation.verifier import build_verifier_argv, run_verifier
+from ponytail.evaluation.verifier import build_verifier_argv, run_verifier
 
 
 def test_build_verifier_argv_maps_python_alias_to_current_interpreter():

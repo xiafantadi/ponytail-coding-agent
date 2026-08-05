@@ -2,11 +2,11 @@
 
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.task_state import TaskState
-from pico.core.turn_transitions import emit_terminal_transition
-from pico.providers import ProviderError
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.core.task_state import TaskState
+from ponytail.core.turn_transitions import emit_terminal_transition
+from ponytail.providers import ProviderError
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs, **kwargs):
@@ -66,7 +66,7 @@ def test_engine_records_loop_transitions_without_changing_stream(tmp_path):
         "continue_count": 1,
         "terminal_count": 1,
         "terminal_reason": "final_answer_returned",
-        "schema_version": "pico.transition_summary.v1",
+        "schema_version": "ponytail.transition_summary.v1",
         "reasons": {
             "tool_batch_executed": 1,
             "final_answer_returned": 1,

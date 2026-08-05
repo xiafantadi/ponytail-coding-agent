@@ -1,6 +1,6 @@
 import pytest
 
-from pico.features.minimal_policy import (
+from ponytail.features.minimal_policy import (
     MINIMAL_POLICY_VERSION,
     MinimalChangePolicy,
     PolicyMode,

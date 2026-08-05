@@ -13,10 +13,10 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pico import Pico, SessionStore, WorkspaceContext  # noqa: E402
-from pico.config import resolve_provider_config  # noqa: E402
-from pico.features.skills_runtime import invoke_skill  # noqa: E402
-from pico.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient  # noqa: E402
+from ponytail import Pico, SessionStore, WorkspaceContext  # noqa: E402
+from ponytail.config import resolve_provider_config  # noqa: E402
+from ponytail.features.skills_runtime import invoke_skill  # noqa: E402
+from ponytail.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient  # noqa: E402
 
 SUMMARY_JSON = "business-scenario-dogfood.json"
 SUMMARY_MARKDOWN = "business-scenario-dogfood.md"
@@ -302,7 +302,7 @@ def _build_client_factory(*, config_path=None, provider=None, model=None, base_u
         api_key=api_key,
     )
     if not config.api_key:
-        raise ValueError(f"provider {config.name!r} has no api key; configure .pico.toml or pass --api-key")
+        raise ValueError(f"provider {config.name!r} has no api key; configure .ponytail.toml or pass --api-key")
 
     def factory():
         if config.protocol == "openai":

@@ -1,11 +1,11 @@
 import os
 from unittest.mock import patch
 
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
-from pico import cli as pico_cli
-from pico.core.task_state import TaskState
-from pico.core.shell_command import python_shell_command
+from ponytail.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail import cli as pico_cli
+from ponytail.core.task_state import TaskState
+from ponytail.core.shell_command import python_shell_command
 
 
 def build_workspace(tmp_path):
@@ -65,7 +65,7 @@ def test_cli_build_agent_wires_secret_env_names_from_parser(tmp_path):
 
     (tmp_path / "README.md").write_text("demo\n", encoding="utf-8")
     with patch.dict(os.environ, {"GITHUB_PAT": "ghp-1", "GH_PAT": "ghp-2"}, clear=True), patch(
-        "pico.cli.OpenAICompatibleModelClient",
+        "ponytail.cli.OpenAICompatibleModelClient",
         DummyModelClient,
     ):
         args = pico_cli.build_arg_parser().parse_args(
@@ -95,7 +95,7 @@ def test_cli_build_agent_uses_default_configured_secret_names(tmp_path):
 
     (tmp_path / "README.md").write_text("demo\n", encoding="utf-8")
     with patch.dict(os.environ, {"GH_PAT": "ghp-default-1"}, clear=True), patch(
-        "pico.cli.OpenAICompatibleModelClient",
+        "ponytail.cli.OpenAICompatibleModelClient",
         DummyModelClient,
     ):
         args = pico_cli.build_arg_parser().parse_args(["--cwd", str(tmp_path), "--approval", "auto"])
@@ -114,7 +114,7 @@ def test_cli_build_agent_loads_project_env_secrets_before_redaction_setup(tmp_pa
 
     (tmp_path / "README.md").write_text("demo\n", encoding="utf-8")
     (tmp_path / ".env").write_text("PICO_DEEPSEEK_API_KEY=sk-project-secret\n", encoding="utf-8")
-    with patch.dict(os.environ, {}, clear=True), patch("pico.cli.AnthropicCompatibleModelClient", DummyModelClient):
+    with patch.dict(os.environ, {}, clear=True), patch("ponytail.cli.AnthropicCompatibleModelClient", DummyModelClient):
         args = pico_cli.build_arg_parser().parse_args(["--cwd", str(tmp_path), "--provider", "deepseek"])
         agent = pico_cli.build_agent(args)
         assert agent.secret_env_summary()["secret_env_names"] == ["PICO_DEEPSEEK_API_KEY"]
@@ -137,7 +137,7 @@ def test_cli_build_agent_reads_secret_names_from_environment_config(tmp_path):
             "PICO_SECRET_ENV_NAMES": "PICO_CUSTOM_SECRET",
         },
         clear=True,
-    ), patch("pico.cli.OpenAICompatibleModelClient", DummyModelClient):
+    ), patch("ponytail.cli.OpenAICompatibleModelClient", DummyModelClient):
         args = pico_cli.build_arg_parser().parse_args(["--cwd", str(tmp_path), "--approval", "auto"])
         agent = pico_cli.build_agent(args)
         assert agent.secret_env_summary()["secret_env_names"] == ["PICO_CUSTOM_SECRET"]
@@ -159,7 +159,7 @@ def test_run_shell_uses_allowlisted_environment_only(tmp_path):
 def test_bound_tool_methods_call_tools_module(tmp_path):
     agent = build_agent(tmp_path, [], approval_policy="auto")
 
-    with patch("pico.tools.registry.subprocess.run") as fake_run:
+    with patch("ponytail.tools.registry.subprocess.run") as fake_run:
         fake_run.return_value = type(
             "Result",
             (),
@@ -169,7 +169,7 @@ def test_bound_tool_methods_call_tools_module(tmp_path):
 
     assert "toolkit-shell" in shell_result
     fake_run.assert_called_once()
-    assert agent.tool_run_shell.__func__.__module__ == "pico.core.runtime"
+    assert agent.tool_run_shell.__func__.__module__ == "ponytail.core.runtime"
 
 
 def test_configured_secret_env_names_are_redacted_in_trace_and_report(tmp_path):

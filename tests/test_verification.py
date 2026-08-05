@@ -1,6 +1,6 @@
 """Unit tests for verification signal extraction from tool traces."""
 
-from pico.core.verification import reduce_verification_signal
+from ponytail.core.verification import reduce_verification_signal
 
 
 def tool_event(command, status="ok"):
@@ -47,7 +47,7 @@ def test_verification_classifier_accepts_common_test_commands():
 
     for command, command_class in cases.items():
         signal = reduce_verification_signal({}, tool_event(command), ["src/app.py"])
-        assert signal["schema_version"] == "pico.verification_signal.v1"
+        assert signal["schema_version"] == "ponytail.verification_signal.v1"
         assert signal["state"] == "passed", command
         assert signal["command_class"] == command_class
         assert signal["after_last_workspace_change"] is True
@@ -67,7 +67,7 @@ def test_verification_signal_marks_workspace_change_as_missing_until_verified():
     signal = reduce_verification_signal({}, changed, ["src/app.py"])
 
     assert signal == {
-        "schema_version": "pico.verification_signal.v1",
+        "schema_version": "ponytail.verification_signal.v1",
         "state": "missing",
         "last_workspace_change_span_id": "span_change",
         "changed_paths": ["src/app.py"],

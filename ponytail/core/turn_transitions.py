@@ -18,7 +18,7 @@ TERMINAL_RETRY_LIMIT_REACHED = "retry_limit_reached"
 TERMINAL_FINAL_GATE_BLOCKED = "final_gate_blocked"
 CONTINUE_KIND = "continue"
 TERMINAL_KIND = "terminal"
-TRANSITION_SUMMARY_SCHEMA = "pico.transition_summary.v1"
+TRANSITION_SUMMARY_SCHEMA = "ponytail.transition_summary.v1"
 
 
 def build_transition(*, kind, reason, attempt_index, tool_call_count=0, tool_requested_count=0, tool_executed_count=0, stop_reason=""):

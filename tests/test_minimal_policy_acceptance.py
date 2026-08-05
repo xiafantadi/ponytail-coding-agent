@@ -1,8 +1,8 @@
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.cli import handle_repl_command
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.cli import handle_repl_command
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs=None, session=None):
@@ -219,7 +219,7 @@ def test_minimality_audit_is_reproducible_report_evidence(tmp_path):
     )
     audit = report["evidence_summaries"]["minimality_audit"]
 
-    assert audit["schema_version"] == "pico.minimality_audit.v1"
+    assert audit["schema_version"] == "ponytail.minimality_audit.v1"
     assert audit["changed_paths"] == ["notes.txt"]
     assert audit["changed_files"] == 1
     assert audit["scope_status"] == "not_configured"

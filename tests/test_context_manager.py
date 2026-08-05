@@ -1,7 +1,7 @@
-from pico.testing import ScriptedModelClient
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.context_report import ContextReportBuilder
-from pico.core.context_manager import ContextManager
+from ponytail.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.core.context_report import ContextReportBuilder
+from ponytail.core.context_manager import ContextManager
 
 
 def build_workspace(tmp_path):

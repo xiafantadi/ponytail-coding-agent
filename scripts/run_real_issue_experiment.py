@@ -11,15 +11,15 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pico.config import resolve_provider_config  # noqa: E402
-from pico.evaluation.minimal_change_experiment import (  # noqa: E402
+from ponytail.config import resolve_provider_config  # noqa: E402
+from ponytail.evaluation.minimal_change_experiment import (  # noqa: E402
     _build_provider_args,
     build_manifest,
     run_one,
     select_tasks,
     write_experiment_artifacts,
 )
-from pico.evaluation.real_issue import (  # noqa: E402
+from ponytail.evaluation.real_issue import (  # noqa: E402
     build_runtime_task,
     enrich_real_issue_row,
     load_real_issue_tasks,

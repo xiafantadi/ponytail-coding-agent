@@ -1,6 +1,6 @@
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.cli import handle_repl_command
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.cli import handle_repl_command
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path):

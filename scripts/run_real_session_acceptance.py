@@ -13,11 +13,11 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pico.testing import ScriptedModelClient  # noqa: E402
-from pico import Pico, SessionStore, WorkspaceContext  # noqa: E402
-from pico.config import resolve_provider_config  # noqa: E402
-from pico.features.skills_runtime import invoke_skill  # noqa: E402
-from pico.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient, ProviderError  # noqa: E402
+from ponytail.testing import ScriptedModelClient  # noqa: E402
+from ponytail import Pico, SessionStore, WorkspaceContext  # noqa: E402
+from ponytail.config import resolve_provider_config  # noqa: E402
+from ponytail.features.skills_runtime import invoke_skill  # noqa: E402
+from ponytail.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient, ProviderError  # noqa: E402
 
 SUMMARY_JSON = "gate8-real-session-acceptance.json"
 SUMMARY_MARKDOWN = "gate8-real-session-acceptance.md"

@@ -16,7 +16,7 @@ from ..core.content_blocks import ensure_model_input
 from .errors import ProviderError, sanitize_url
 from .native_tools import native_tool_text
 
-OPENAI_COMPATIBLE_USER_AGENT = "pico/0.1"
+OPENAI_COMPATIBLE_USER_AGENT = "ponytail/0.3"
 RETRYABLE_HTTP_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
 
 

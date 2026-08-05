@@ -126,7 +126,7 @@ set -e
 metadata_path="$sandbox/pico-adapter-metadata.json"
 (
   cd "$repo_root"
-  uv run python -m pico.evaluation.harnessbench \
+  uv run python -m ponytail.evaluation.harnessbench \
     --workspace "$workspace" \
     --session-id "$session_id" \
     --returncode "$status" \

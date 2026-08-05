@@ -25,11 +25,11 @@ try:
 except ImportError:  # Windows does not provide POSIX pseudo terminals.
     pty = None
 
-from pico.evaluation.run_evidence import RunEvidence
+from ponytail.evaluation.run_evidence import RunEvidence
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CONFIG = ROOT / ".pico.toml"
+DEFAULT_CONFIG = ROOT / ".ponytail.toml"
 SUMMARY_JSON = "summary.json"
 SUMMARY_MD = "summary.md"
 
@@ -397,7 +397,7 @@ allowed-tools: read_file, write_file
         command = self.run_python(
             "S10",
             workspace,
-            "from pico.commands.slash import suggest_commands\n"
+            "from ponytail.commands.slash import suggest_commands\n"
             "items = suggest_commands('/sub')\n"
             "print(items[0].name if items else '')\n",
         )
@@ -447,7 +447,7 @@ allowed-tools: read_file, write_file
         checks = [
             check("command_exit_0", command.returncode == 0),
             check("model_switched", "model: gpt-test-local" in stdout),
-            check("no_workspace_config_written", not (workspace / ".pico.toml").exists()),
+            check("no_workspace_config_written", not (workspace / ".ponytail.toml").exists()),
         ]
         return self.result("S13", "/model 只改当前 runtime", "PTY REPL slash command", workspace, [command], checks)
 
@@ -1621,7 +1621,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run Pico v3 human-scenario release gate.")
     parser.add_argument("--suite", choices=("gate", "full"), default="gate", help="Run the 12-scenario release gate or all 50 designed scenarios.")
     parser.add_argument("--output-dir", default="", help="Output directory for logs, workspaces, and summary. Must be outside this git repo.")
-    parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="Pico config file. Defaults to this repo's ignored .pico.toml.")
+    parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="Pico config file. Defaults to this repo's ignored .ponytail.toml.")
     parser.add_argument("--provider", default="deepseek", help="Provider profile to pass to Pico.")
     parser.add_argument("--scenario", dest="scenarios", action="append", default=[], help="Run only one scenario id, repeatable.")
     return parser

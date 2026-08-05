@@ -1,6 +1,6 @@
 import subprocess
 
-from pico.core.shell_command import (
+from ponytail.core.shell_command import (
     join_shell_args,
     python_shell_command,
     split_shell_args,

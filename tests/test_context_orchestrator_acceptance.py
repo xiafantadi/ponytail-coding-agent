@@ -1,7 +1,7 @@
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs=None):

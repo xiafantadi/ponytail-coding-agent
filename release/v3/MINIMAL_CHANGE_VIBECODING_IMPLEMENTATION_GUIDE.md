@@ -85,8 +85,8 @@
 ## 3. 最终目录规划
 
 ```text
-pico/features/minimal_policy.py
-pico/evaluation/minimal_change.py
+ponytail/features/minimal_policy.py
+ponytail/evaluation/minimal_change.py
 scripts/run_minimal_change_experiment.py
 benchmarks/minimal_change/tasks.json
 benchmarks/minimal_change/fixtures/
@@ -173,7 +173,7 @@ artifacts/minimal-change/baseline/scenario-gate.txt
 ### 允许改动范围
 
 ```text
-pico/features/minimal_policy.py
+ponytail/features/minimal_policy.py
 tests/test_minimal_policy.py
 ```
 
@@ -203,7 +203,7 @@ tests/test_minimal_policy.py
 
 ```powershell
 uv run pytest tests/test_minimal_policy.py -q
-uv run ruff check pico/features/minimal_policy.py tests/test_minimal_policy.py
+uv run ruff check ponytail/features/minimal_policy.py tests/test_minimal_policy.py
 ```
 
 - 目标测试退出码为 0。
@@ -228,10 +228,10 @@ uv run ruff check pico/features/minimal_policy.py tests/test_minimal_policy.py
 ### 允许改动范围
 
 ```text
-pico/cli.py
-pico/commands/slash.py
-pico/features/skills_bundled.py
-pico/features/minimal_policy.py
+ponytail/cli.py
+ponytail/commands/slash.py
+ponytail/features/skills_bundled.py
+ponytail/features/minimal_policy.py
 tests/test_minimal_policy.py
 tests/test_minimal_policy_acceptance.py
 ```
@@ -273,11 +273,11 @@ uv run pytest tests/test_skills_acceptance.py tests/test_pico.py tests/test_v3_r
 ### 允许改动范围
 
 ```text
-pico/core/runtime.py
-pico/core/context_manager.py
-pico/core/context_report.py
-pico/core/context_usage.py
-pico/features/minimal_policy.py
+ponytail/core/runtime.py
+ponytail/core/context_manager.py
+ponytail/core/context_report.py
+ponytail/core/context_usage.py
+ponytail/features/minimal_policy.py
 tests/test_minimal_policy_prompt.py
 tests/test_context_manager.py
 tests/test_context_orchestrator.py
@@ -329,10 +329,10 @@ uv run pytest tests/test_context_governance_acceptance.py -q
 ### 允许改动范围
 
 ```text
-pico/core/runtime.py
-pico/core/task_state.py
-pico/core/checkpoint*.py
-pico/features/minimal_policy.py
+ponytail/core/runtime.py
+ponytail/core/task_state.py
+ponytail/core/checkpoint*.py
+ponytail/features/minimal_policy.py
 tests/test_minimal_policy_resume.py
 ```
 
@@ -372,11 +372,11 @@ uv run pytest tests/test_minimal_policy_resume.py tests/test_runtime.py tests/te
 ### 允许改动范围
 
 ```text
-pico/core/task_state.py
-pico/core/runtime.py
-pico/core/run_store.py
-pico/core/completion_governance.py
-pico/core/runtime_consumers.py
+ponytail/core/task_state.py
+ponytail/core/runtime.py
+ponytail/core/run_store.py
+ponytail/core/completion_governance.py
+ponytail/core/runtime_consumers.py
 tests/test_minimal_policy_acceptance.py
 tests/test_run_store.py
 ```
@@ -482,7 +482,7 @@ uv run pytest tests/test_minimal_policy_safety.py tests/test_final_readiness.py 
 
 ```text
 benchmarks/minimal_change/tasks.json
-pico/evaluation/minimal_change.py
+ponytail/evaluation/minimal_change.py
 tests/test_minimal_change_evaluator.py
 ```
 

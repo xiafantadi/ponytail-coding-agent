@@ -2,9 +2,9 @@
 
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.shell_command import python_shell_command
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.core.shell_command import python_shell_command
+from ponytail.testing import ScriptedModelClient
 
 
 def build_agent(tmp_path, outputs, **kwargs):
@@ -98,7 +98,7 @@ def test_soft_final_readiness_reminds_once_then_allows_unchanged_final(tmp_path)
     assert report["evidence_summaries"]["final_readiness_summary"]["warn_count"] == 1
     assert (
         report["evidence_summaries"]["final_readiness_summary"]["schema_version"]
-        == "pico.final_readiness_summary.v1"
+        == "ponytail.final_readiness_summary.v1"
     )
 
 

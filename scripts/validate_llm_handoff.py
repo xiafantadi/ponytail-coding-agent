@@ -12,10 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pico import Pico, SessionStore, WorkspaceContext  # noqa: E402
-from pico.core.context_budget_summary import context_budget_summary  # noqa: E402
-from pico.core.context_manager import ContextManager  # noqa: E402
-from pico.testing import ScriptedModelClient  # noqa: E402
+from ponytail import Pico, SessionStore, WorkspaceContext  # noqa: E402
+from ponytail.core.context_budget_summary import context_budget_summary  # noqa: E402
+from ponytail.core.context_manager import ContextManager  # noqa: E402
+from ponytail.testing import ScriptedModelClient  # noqa: E402
 
 
 HANDOFF_LLM_OUTPUT = """## Goal

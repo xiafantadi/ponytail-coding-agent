@@ -1,7 +1,7 @@
 import os
 from unittest.mock import patch
 
-from pico.evaluation.metrics import (
+from ponytail.evaluation.metrics import (
     _provider_profile,
     main as metrics_main,
     run_context_ablation_v2,
@@ -38,7 +38,7 @@ def test_metrics_cli_context_ab_writes_artifacts(tmp_path, monkeypatch):
 
 def test_provider_profile_uses_project_toml_before_legacy_pico_env(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    (tmp_path / ".pico.toml").write_text(
+    (tmp_path / ".ponytail.toml").write_text(
         "\n".join(
             [
                 "[providers.deepseek]",
@@ -207,7 +207,7 @@ def test_write_benchmark_core_report_marks_resume_safe_metrics(tmp_path):
 
 
 def test_write_benchmark_core_report_includes_optional_context_ab(tmp_path):
-    from pico.evaluation.context_cost import run_deterministic_prompt_experiment, write_experiment_artifacts
+    from ponytail.evaluation.context_cost import run_deterministic_prompt_experiment, write_experiment_artifacts
 
     run_context_ablation_v2(tmp_path / "artifacts" / "context-ablation-v2.json", repetitions=1)
     run_memory_ablation_v2(tmp_path / "artifacts" / "memory-ablation-v2.json", repetitions=1)

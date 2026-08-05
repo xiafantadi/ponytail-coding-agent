@@ -14,8 +14,8 @@ import textwrap
 
 import pytest
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.testing import ScriptedModelClient
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.testing import ScriptedModelClient
 
 
 def _build_workspace(tmp_path):
@@ -97,7 +97,7 @@ def test_step_limit_default_can_handle_realistic_workflows(tmp_path):
 
 def test_empty_response_does_not_silently_stop(tmp_path):
     """empty_response 错误必须用户可见，不再'Stopped after model error' 静默。"""
-    from pico.providers.errors import ProviderError
+    from ponytail.providers.errors import ProviderError
 
     err = ProviderError(
         "empty",
@@ -128,8 +128,8 @@ def _has_live_provider():
 )
 def test_dream_produces_non_empty_topics_with_live_provider(tmp_path):
     """End-to-end: 真实 provider 跑一次 dream，topics/ 必须产出非空文件。"""
-    from pico.config import resolve_provider_config
-    from pico.providers import (
+    from ponytail.config import resolve_provider_config
+    from ponytail.providers import (
         AnthropicCompatibleModelClient,
         OpenAICompatibleModelClient,
     )

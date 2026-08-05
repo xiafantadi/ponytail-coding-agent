@@ -1,12 +1,12 @@
 """Unit tests for final-readiness gate decisions and notices."""
 
-from pico.core.final_readiness import (
+from ponytail.core.final_readiness import (
     evaluate_final_readiness,
     extract_required_artifact_paths,
     readiness_notice,
 )
-from pico.core.task_state import TaskState
-from pico.core.task_intent import request_requires_workspace_change
+from ponytail.core.task_state import TaskState
+from ponytail.core.task_intent import request_requires_workspace_change
 
 
 def task_state():
@@ -351,8 +351,8 @@ def test_readiness_notice_gives_actionable_change_workflow():
 
 
 def test_final_readiness_summary_has_schema_version():
-    from pico.core.final_readiness import reduce_final_readiness_summary
+    from ponytail.core.final_readiness import reduce_final_readiness_summary
 
     summary = reduce_final_readiness_summary({}, {"decision": "warn", "reasons": []})
 
-    assert summary["schema_version"] == "pico.final_readiness_summary.v1"
+    assert summary["schema_version"] == "ponytail.final_readiness_summary.v1"

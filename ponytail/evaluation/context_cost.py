@@ -13,12 +13,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from types import MethodType
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.config import default_max_tokens_for_provider, resolve_provider_config
-from pico.core.run_store import RunStore
-from pico.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient
-from pico.testing import ScriptedModelClient
-from pico.evaluation.verifier import run_verifier
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.config import default_max_tokens_for_provider, resolve_provider_config
+from ponytail.core.run_store import RunStore
+from ponytail.providers import AnthropicCompatibleModelClient, OpenAICompatibleModelClient
+from ponytail.testing import ScriptedModelClient
+from ponytail.evaluation.verifier import run_verifier
 
 
 @dataclass(frozen=True)

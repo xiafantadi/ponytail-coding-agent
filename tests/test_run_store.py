@@ -2,8 +2,8 @@ import json
 import threading
 import time
 
-from pico.core.run_store import RunStore
-from pico.core.task_state import STOP_REASON_FINAL_ANSWER_RETURNED, TaskState
+from ponytail.core.run_store import RunStore
+from ponytail.core.task_state import STOP_REASON_FINAL_ANSWER_RETURNED, TaskState
 
 
 def test_run_store_serializes_writes_across_threads(tmp_path, monkeypatch):

@@ -1,12 +1,12 @@
 import json
 from unittest.mock import patch
 
-from pico.testing import ScriptedModelClient
-from pico import OpenAICompatibleModelClient, Pico, SessionStore, WorkspaceContext
-from pico.cli import handle_repl_command
-from pico.core.permissions import PermissionDecision
-from pico.core.tool_repetition import is_repeated_tool_call
-from pico.features.sandbox.config import SandboxConfig
+from ponytail.testing import ScriptedModelClient
+from ponytail import OpenAICompatibleModelClient, Pico, SessionStore, WorkspaceContext
+from ponytail.cli import handle_repl_command
+from ponytail.core.permissions import PermissionDecision
+from ponytail.core.tool_repetition import is_repeated_tool_call
+from ponytail.features.sandbox.config import SandboxConfig
 
 
 def build_agent(tmp_path, outputs=None, **kwargs):

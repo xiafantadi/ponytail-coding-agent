@@ -3,13 +3,13 @@
 import hashlib
 import json
 
-from pico import Pico, SessionStore, WorkspaceContext
-from pico.core.context_manager import ContextManager
-from pico.core.run_store import RunStore
-from pico.core.shell_command import python_shell_command
-from pico.core.tool_result_artifacts import prepare_tool_result_observation
-from pico.testing import ScriptedModelClient
-from pico.tools.base import RegisteredTool
+from ponytail import Pico, SessionStore, WorkspaceContext
+from ponytail.core.context_manager import ContextManager
+from ponytail.core.run_store import RunStore
+from ponytail.core.shell_command import python_shell_command
+from ponytail.core.tool_result_artifacts import prepare_tool_result_observation
+from ponytail.testing import ScriptedModelClient
+from ponytail.tools.base import RegisteredTool
 
 
 def build_agent(tmp_path, outputs=None, **kwargs):

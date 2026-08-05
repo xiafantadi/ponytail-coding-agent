@@ -6,9 +6,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pico import cli
-from pico.evaluation.harnessbench import build_adapter_metadata, write_adapter_metadata
-from pico.testing import ScriptedModelClient
+from ponytail import cli
+from ponytail.evaluation.harnessbench import build_adapter_metadata, write_adapter_metadata
+from ponytail.testing import ScriptedModelClient
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +19,7 @@ def test_prompt_file_reads_prompt_and_runs_one_shot(tmp_path, capsys):
     prompt.write_text("Return final.", encoding="utf-8")
 
     with patch(
-        "pico.cli._build_model_client",
+        "ponytail.cli._build_model_client",
         return_value=ScriptedModelClient(["<final>prompt file ok</final>"]),
     ):
         code = cli.main(
@@ -73,7 +73,7 @@ def test_session_id_creates_and_reuses_fixed_session(tmp_path):
         "--non-interactive",
     ]
 
-    with patch("pico.cli._build_model_client", side_effect=clients):
+    with patch("ponytail.cli._build_model_client", side_effect=clients):
         assert cli.main(argv) == 0
         assert cli.main(argv) == 0
 
@@ -213,7 +213,7 @@ def test_bench_script_env_max_steps_overrides_yaml_arg(tmp_path):
         """#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\\n' "$*" >> "$UV_LOG"
-if [[ "$*" == *"pico.evaluation.harnessbench"* ]]; then
+if [[ "$*" == *"ponytail.evaluation.harnessbench"* ]]; then
   output=""
   while [[ $# -gt 0 ]]; do
     case "$1" in

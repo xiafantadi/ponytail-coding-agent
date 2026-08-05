@@ -1,6 +1,6 @@
 """Context budget evidence reducer."""
 
-CONTEXT_BUDGET_SCHEMA = "pico.context_budget_summary.v1"
+CONTEXT_BUDGET_SCHEMA = "ponytail.context_budget_summary.v1"
 
 
 def context_budget_summary(metadata):

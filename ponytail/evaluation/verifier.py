@@ -6,7 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from pico.core.shell_command import split_shell_args
+from ponytail.core.shell_command import split_shell_args
 
 
 _SHELL_OPERATORS = {"&&", "||", "|", ";", ">", ">>", "<", "2>", "2>>"}

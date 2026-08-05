@@ -1,6 +1,6 @@
 import pytest
 
-from pico.evaluation.minimal_change_experiment import (
+from ponytail.evaluation.minimal_change_experiment import (
     EXPERIMENT_ARMS,
     TASK_EXECUTION_CONTRACT,
     YAGNI_NOTICE,
@@ -12,7 +12,7 @@ from pico.evaluation.minimal_change_experiment import (
     validate_experiment_config,
     write_experiment_artifacts,
 )
-from pico.evaluation.minimal_change import recompute_minimal_change_summary
+from ponytail.evaluation.minimal_change import recompute_minimal_change_summary
 
 
 def _tasks():

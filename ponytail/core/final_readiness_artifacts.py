@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-REQUIRED_ARTIFACT_SUMMARY_SCHEMA = "pico.required_artifact_summary.v1"
+REQUIRED_ARTIFACT_SUMMARY_SCHEMA = "ponytail.required_artifact_summary.v1"
 _BACKTICK_RE = re.compile(r"`([^`]+)`")
 _OUTPUT_CONTEXT_MARKERS = (
     "产出",

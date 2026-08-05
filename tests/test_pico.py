@@ -7,11 +7,11 @@ import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
-import pico as pico_pkg
-import pico.providers as providers_pkg
+import ponytail as pico_pkg
+import ponytail.providers as providers_pkg
 import pytest
-from pico.testing import ScriptedModelClient
-from pico import (
+from ponytail.testing import ScriptedModelClient
+from ponytail import (
     AnthropicCompatibleModelClient,
     Pico,
     OpenAICompatibleModelClient,
@@ -19,10 +19,10 @@ from pico import (
     WorkspaceContext,
     build_welcome,
 )
-from pico.providers import ProviderError
-from pico.core.model_output import parse as parse_model_output
-from pico.core.shell_command import python_shell_command
-from pico.core.task_state import TaskState
+from ponytail.providers import ProviderError
+from ponytail.core.model_output import parse as parse_model_output
+from ponytail.core.shell_command import python_shell_command
+from ponytail.core.task_state import TaskState
 
 
 def build_workspace(tmp_path):
@@ -385,7 +385,7 @@ def test_openai_compatible_client_posts_expected_responses_payload():
     assert captured["headers"]["Authorization"] == "Bearer sk-test"
     assert captured["headers"]["Content-type"] == "application/json"
     assert captured["headers"]["Accept"] == "application/json"
-    assert captured["headers"]["User-agent"] == "pico/0.1"
+    assert captured["headers"]["User-agent"] == "ponytail/0.3"
     assert captured["body"] == {
         "model": "right.codes/codex-mini",
         "input": [
@@ -604,7 +604,7 @@ def test_openai_compatible_client_retries_rate_limit_and_records_retry_metadata(
         timeout=30,
     )
 
-    with patch("urllib.request.urlopen", fake_urlopen), patch("pico.providers.clients.time.sleep"):
+    with patch("urllib.request.urlopen", fake_urlopen), patch("ponytail.providers.clients.time.sleep"):
         result = client.complete("hello", 42)
 
     assert result == "<final>ok</final>"
@@ -977,7 +977,7 @@ def test_build_agent_uses_openai_provider_and_model_override(tmp_path):
         },
         clear=False,
     ):
-        with patch("pico.cli.OpenAICompatibleModelClient") as mock_openai:
+        with patch("ponytail.cli.OpenAICompatibleModelClient") as mock_openai:
             fake_client = mock_openai.return_value
             agent = pico_pkg.build_agent(args)
 
@@ -1035,9 +1035,9 @@ def test_build_agent_uses_anthropic_provider_and_openai_key_fallback(tmp_path):
         clear=True,
     ):
         with patch(
-            "pico.cli.OpenAICompatibleModelClient",
+            "ponytail.cli.OpenAICompatibleModelClient",
             side_effect=AssertionError("openai client should not be used"),
-        ), patch("pico.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+        ), patch("ponytail.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             fake_client = mock_anthropic.return_value
             agent = pico_pkg.build_agent(args)
 
@@ -1057,7 +1057,7 @@ def test_build_agent_uses_anthropic_default_model_when_env_is_missing(tmp_path):
         clear=False,
     ):
         os.environ.pop("ANTHROPIC_MODEL", None)
-        with patch("pico.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+        with patch("ponytail.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             pico_pkg.build_agent(args)
 
     assert mock_anthropic.call_args.kwargs["model"] == "claude-sonnet-4-6"
@@ -1101,9 +1101,9 @@ def test_build_agent_uses_deepseek_provider_and_env_configuration(tmp_path):
         clear=True,
     ):
         with patch(
-            "pico.cli.OpenAICompatibleModelClient",
+            "ponytail.cli.OpenAICompatibleModelClient",
             side_effect=AssertionError("openai client should not be used"),
-        ), patch("pico.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+        ), patch("ponytail.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             fake_client = mock_anthropic.return_value
             agent = pico_pkg.build_agent(args)
 
@@ -1115,7 +1115,7 @@ def test_build_agent_uses_deepseek_provider_and_env_configuration(tmp_path):
 
 
 def test_build_agent_uses_provider_profile_protocol_from_project_toml(tmp_path):
-    (tmp_path / ".pico.toml").write_text(
+    (tmp_path / ".ponytail.toml").write_text(
         "\n".join(
             [
                 'provider = "deepseek"',
@@ -1134,9 +1134,9 @@ def test_build_agent_uses_provider_profile_protocol_from_project_toml(tmp_path):
 
     with patch.dict(os.environ, {"PICO_DEEPSEEK_API_KEY": "sk-legacy-env"}, clear=True):
         with patch(
-            "pico.cli.OpenAICompatibleModelClient",
+            "ponytail.cli.OpenAICompatibleModelClient",
             side_effect=AssertionError("openai client should not be used"),
-        ), patch("pico.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+        ), patch("ponytail.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             fake_client = mock_anthropic.return_value
             agent = pico_pkg.build_agent(args)
 
@@ -1151,7 +1151,7 @@ def test_build_agent_uses_deepseek_default_model_when_env_is_missing(tmp_path):
     args = pico_pkg.build_arg_parser().parse_args(["--cwd", str(tmp_path), "--provider", "deepseek"])
 
     with patch.dict(os.environ, {"DEEPSEEK_API_KEY": "sk-deepseek"}, clear=True):
-        with patch("pico.cli.AnthropicCompatibleModelClient") as mock_anthropic:
+        with patch("ponytail.cli.AnthropicCompatibleModelClient") as mock_anthropic:
             pico_pkg.build_agent(args)
 
     assert mock_anthropic.call_args.kwargs["model"] == "deepseek-v4-pro"
@@ -1169,7 +1169,7 @@ def test_build_agent_uses_openai_provider_by_default(tmp_path):
         },
         clear=False,
     ):
-        with patch("pico.cli.OpenAICompatibleModelClient") as mock_openai:
+        with patch("ponytail.cli.OpenAICompatibleModelClient") as mock_openai:
             fake_client = mock_openai.return_value
             agent = pico_pkg.build_agent(args)
 
@@ -1917,7 +1917,7 @@ def test_background_auto_dream_failure_restores_lock_and_reports_error(tmp_path,
     def fail_dream(*_args, **_kwargs):
         raise RuntimeError("dream provider unavailable")
 
-    monkeypatch.setattr("pico.features.memory.run_dream", fail_dream)
+    monkeypatch.setattr("ponytail.features.memory.run_dream", fail_dream)
     agent = build_agent(
         tmp_path,
         ["<final><memory>Project: keep memory observable.</memory></final>"],
@@ -2114,7 +2114,7 @@ def test_public_api_exports_resolve_through_package_path():
     assert not hasattr(pico_pkg, "OllamaModelClient")
     assert SessionStore is not None
     assert WorkspaceContext is not None
-    assert Path(pico_pkg.__file__).as_posix().endswith("/pico/__init__.py")
+    assert Path(pico_pkg.__file__).as_posix().endswith("/ponytail/__init__.py")
 
 
 def test_reviewer_skeleton_docs_exist():
@@ -2151,7 +2151,7 @@ def test_package_import_surface_includes_cli_entrypoints():
 
 def test_module_execution_help_works():
     result = subprocess.run(
-        [sys.executable, "-m", "pico", "--help"],
+        [sys.executable, "-m", "ponytail", "--help"],
         capture_output=True,
         text=True,
     )

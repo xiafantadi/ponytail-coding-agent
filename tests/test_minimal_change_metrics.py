@@ -3,7 +3,7 @@ import csv
 import json
 from pathlib import Path
 
-from pico.evaluation.minimal_change import (
+from ponytail.evaluation.minimal_change import (
     evaluate_minimal_change_result,
     load_minimal_change_tasks,
     run_verification_suite,
