@@ -1,23 +1,19 @@
 <div align="center">
 
-# Ponytail Coding Agent
+# PonyCode
 
-**面向 AI 基础设施仓库的 Issue 修复与补丁验证系统**
+**仓库级 Issue 修复与评测框架**
 
-Ponytail 将真实 Issue、固定仓库版本、修改范围和外部测试组织成可执行任务合同，
+PonyCode 将真实 Issue、固定仓库版本、修改范围和外部测试组织成可执行任务合同，
 让模型在本地完成定位、最小补丁、回归验证和运行证据落盘。
 
 </div>
 
-<p align="center">
-  <img src="assets/screenshots/pico-tui-intro.png" alt="Ponytail TUI 启动界面" width="960">
-</p>
-
 ---
 
-## Ponytail 是什么
+## PonyCode 是什么
 
-Ponytail 是一个 Code Agent Runtime & Evaluation Harness，重点解决 AI SDK 和 Agent 基础设施仓库中的 Provider 兼容、SSE 流式响应、usage 字段、工具协议与跨平台缺陷。一次任务按以下链路执行：
+PonyCode 是一个 Code Agent Runtime & Evaluation Harness，重点解决 AI SDK 和 Agent 基础设施仓库中的 Provider 兼容、SSE 流式响应、usage 字段、工具协议与跨平台缺陷。一次任务按以下链路执行：
 
 ```text
 历史 Issue + 修复前 commit + 失败测试
@@ -33,10 +29,10 @@ Runtime 将一次运行拆成几个可观察部分：
 - **context**：把系统提示、仓库信息、skills、记忆和最近对话装进 prompt。
 - **tools**：文件读取、搜索、shell、写文件、patch、子 agent 都走统一工具协议。
 - **approval / sandbox**：写操作和 shell 命令可以被审批或沙箱限制。
-- **session / run evidence**：对话、事件流、trace、report 都写到本地 `.pico/`。
+- **session / run evidence**：对话、事件流、trace、report 都写入工作区运行目录。
 - **memory / dream**：把 daily log 整理成长期 topic，下次 session 可以继续用。
 
-Ponytail 关注的不是模型是否“声称完成”，而是补丁是否真正修复目标失败、是否破坏已有行为、是否越过改动范围，以及失败发生在哪一层。
+PonyCode 关注的不是模型是否“声称完成”，而是补丁是否真正修复目标失败、是否破坏已有行为、是否越过改动范围，以及失败发生在哪一层。
 
 ## 真实缺陷评测
 
@@ -64,18 +60,6 @@ Ponytail 关注的不是模型是否“声称完成”，而是补丁是否真�
 | [Baseline](evidence/baseline/README.md) | 二次开发前的测试与真实 Provider 基线 |
 | [Current regression](evidence/regression/README.md) | 当前主分支的全量测试和静态检查结果 |
 
-## 界面
-
-TUI 直接连接同一个 runtime。输入框、工具结果、状态栏、slash command 和补全都来自当前 session。
-
-| 工具和子 agent | Skills、help 和命令补全 |
-| --- | --- |
-| ![Ponytail TUI 工具表](assets/screenshots/pico-tui-tools.png) | ![Ponytail TUI skills 和 help](assets/screenshots/pico-tui-skills-help.png) |
-
-| Memory 和 durable topics | Slash command 工作区 |
-| --- | --- |
-| ![Ponytail TUI memory 和 skills](assets/screenshots/pico-tui-memory-skills.png) | ![Ponytail TUI slash command 补全](assets/screenshots/pico-tui-latest.png) |
-
 ## 安装
 
 要求：Python 3.10+，以及至少一个可用的模型 provider key。
@@ -102,7 +86,7 @@ uv run ponytail
 
 ## 配置 provider
 
-Ponytail 启动前先解析一个 **provider profile**。一个 profile 主要由四项组成：
+PonyCode 启动前先解析一个 **provider profile**，主要包含请求协议、API key、服务地址和模型名称：
 
 | 字段 | 作用 |
 | --- | --- |
@@ -111,86 +95,7 @@ Ponytail 启动前先解析一个 **provider profile**。一个 profile 主要�
 | `base_url` | provider endpoint。 |
 | `model` | 本次请求使用的模型名。 |
 
-配置合并优先级是：
-
-```text
-CLI 参数 > 环境变量 > 项目 .pico.toml > 全局 ~/.config/pico/config.toml > 代码默认值
-```
-
-### 方式一：项目 `.pico.toml`
-
-这是最推荐的配置方式，适合每个仓库独立指定 provider：
-
-```bash
-cp .pico.toml.example .pico.toml
-$EDITOR .pico.toml
-```
-
-`.pico.toml` 默认被 `.gitignore` 忽略，不要把真实 key 提交进 git。
-
-最小可用示例：
-
-```toml
-provider = "deepseek"
-
-[providers.deepseek]
-protocol = "anthropic"
-api_key = "sk-..."
-base_url = "https://api.deepseek.com/anthropic"
-model = "deepseek-v4-pro"
-
-[providers.openai]
-protocol = "openai"
-api_key = "sk-..."
-base_url = "https://www.right.codes/codex/v1"
-model = "gpt-5.4"
-
-[providers.anthropic]
-protocol = "anthropic"
-api_key = "sk-ant-..."
-base_url = "https://www.right.codes/claude/v1"
-model = "claude-sonnet-4-6"
-```
-
-注意：`provider = "deepseek"` 只是选择 profile 名字，真正决定请求格式的是
-`protocol`。例如 DeepSeek 可以通过 Anthropic-compatible endpoint 使用，所以这里写
-`protocol = "anthropic"`。
-
-### 方式二：环境变量
-
-不想把 key 写进 TOML 时，用环境变量：
-
-```bash
-export PICO_PROVIDER=deepseek
-export DEEPSEEK_API_KEY=sk-...
-export DEEPSEEK_BASE_URL=https://api.deepseek.com/anthropic
-export DEEPSEEK_MODEL=deepseek-v4-pro
-
-ponytail
-```
-
-常用 provider 变量：
-
-| Provider | 变量 |
-| --- | --- |
-| DeepSeek | `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL` |
-| OpenAI-compatible | `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL` |
-| Anthropic-compatible | `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL`, `ANTHROPIC_MODEL` |
-
-如果你的网关给 OpenAI-compatible 和 Anthropic-compatible 共用同一个 key，
-也可以设置 `PICO_RIGHT_CODES_API_KEY` 作为 fallback。
-
-也可以用通用覆盖变量：
-
-```bash
-export PICO_API_KEY=sk-...
-export PICO_BASE_URL=https://api.openai.com/v1
-export PICO_MODEL=gpt-5.4
-```
-
-### 方式三：命令行临时覆盖
-
-临时换 provider 或模型：
+可以通过项目配置、环境变量或命令行参数选择 provider。命令行临时覆盖示例：
 
 ```bash
 ponytail --provider openai --model gpt-5.4 --base-url https://api.openai.com/v1
@@ -258,9 +163,9 @@ ponytail --no-auto-dream              # 关闭后台 memory 整合
 | `/model <name>` | 当前 session 临时切模型。 |
 | `/compact` | 压缩较早的对话历史。 |
 | `/clear` | 开一个新的空 session。 |
-| `/exit` | 退出 Ponytail。 |
+| `/exit` | 退出 PonyCode。 |
 
-## Ponytail 能做什么
+## PonyCode 能做什么
 
 | 能力 | 说明 |
 | --- | --- |
@@ -272,21 +177,6 @@ ponytail --no-auto-dream              # 关闭后台 memory 整合
 | Memory | working memory、daily logs、durable topics、auto-dream。 |
 | Evidence | session JSON、event stream、run trace、task state、report。 |
 | Sandbox | 对 `run_shell` 做可选隔离。 |
-
-## 本地文件
-
-| 数据 | 路径 |
-| --- | --- |
-| 项目配置 | `.pico.toml` |
-| 全局配置 | `~/.config/pico/config.toml` |
-| 会话历史 | `.pico/sessions/<id>.json` |
-| 事件流 | `.pico/sessions/<id>.events.jsonl` |
-| 运行证据 | `.pico/runs/<run_id>/` |
-| 记忆索引 | `.pico/memory/MEMORY.md` |
-| Daily logs | `.pico/memory/logs/YYYY/MM/YYYY-MM-DD.md` |
-| Durable topics | `.pico/memory/topics/*.md` |
-| 用户 skills | `~/.pico/skills/<name>/SKILL.md` |
-| 项目 skills | `skills/<name>/SKILL.md` 或 `.pico/skills/<name>/SKILL.md` |
 
 ## 项目结构
 
@@ -309,16 +199,13 @@ ponytail/
 ```bash
 pip install -e ".[dev]"
 pytest tests/ -q
-
-# 真实 provider 烟测需要 key
-PICO_LIVE_SMOKE=1 pytest tests/test_release_smoke.py -q
 ```
 
 ## 文档
 
 | 入口 | 内容 |
 | --- | --- |
-| [配置](docs/configuration.md) | provider profile、`.pico.toml`、环境变量和 sandbox 配置。 |
+| [配置](docs/configuration.md) | provider profile、环境变量和 sandbox 配置。 |
 | [分层记忆 + auto-dream](docs/memory.md) | working memory、daily logs、durable topics 和后台整合。 |
 | [Skills](docs/skills.md) | `SKILL.md` 目录结构、内置技能和自定义 workflow。 |
 | [Sandbox](docs/sandbox.md) | `run_shell` 隔离模式、backend 选择和文件系统边界。 |
@@ -356,8 +243,6 @@ PICO_LIVE_SMOKE=1 pytest tests/test_release_smoke.py -q
 | 10 | [模块学习指南](release/v3/learning/10-module-learning-guide.md) |
 | 11 | [Dream 后台记忆整合](release/v3/learning/11-dream-memory-consolidation.md) |
 
-## 兼容性与来源
-
-Ponytail 在既有 Pico v3 Runtime 代码基础上进行二次工程开发，新增原生工具调用、最终回答门禁、最小改动策略、真实缺陷任务适配与可复算评测证据。源码包已迁移为 `ponytail`；为避免破坏已有配置和脚本，`.pico/` 数据目录、`.pico.toml`、`PICO_*` 环境变量以及 `pico` CLI 继续作为兼容接口保留，推荐的新入口为 `ponytail`。
+## 许可与分发
 
 当前仓库未附独立开源许可证。公开或再分发前，应以原始代码授权和购买协议为准；本说明不构成额外授权。
