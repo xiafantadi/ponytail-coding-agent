@@ -139,13 +139,18 @@ def _write_patch(before, after, path):
     for name in sorted(set(before) | set(after)):
         if before.get(name) == after.get(name):
             continue
-        old = before.get(name, b"").decode("utf-8", errors="replace").splitlines(True)
-        new = after.get(name, b"").decode("utf-8", errors="replace").splitlines(True)
+        old = _normalized_diff_lines(before.get(name, b""))
+        new = _normalized_diff_lines(after.get(name, b""))
         lines.extend(
             difflib.unified_diff(old, new, fromfile=f"a/{name}", tofile=f"b/{name}")
         )
     path.write_text("".join(lines), encoding="utf-8")
     return path
+
+
+def _normalized_diff_lines(content):
+    text = content.decode("utf-8", errors="replace")
+    return text.replace("\r\n", "\n").replace("\r", "\n").splitlines(True)
 
 
 def _build_provider_args(*, provider, model, config, base_url, api_key, timeout):

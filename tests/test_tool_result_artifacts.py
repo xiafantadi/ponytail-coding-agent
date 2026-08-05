@@ -7,6 +7,7 @@ from pico import Pico, SessionStore, WorkspaceContext
 from pico.core.context_manager import ContextManager
 from pico.core.run_store import RunStore
 from pico.core.shell_command import python_shell_command
+from pico.core.tool_result_artifacts import prepare_tool_result_observation
 from pico.testing import ScriptedModelClient
 from pico.tools.base import RegisteredTool
 
@@ -26,6 +27,17 @@ def build_agent(tmp_path, outputs=None, **kwargs):
 
 def read_jsonl(path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+
+def test_repository_navigation_tools_have_larger_inline_budgets(tmp_path):
+    agent = build_agent(tmp_path)
+    content = "x" * 5000
+
+    shell_observation, _ = prepare_tool_result_observation(agent, "run_shell", content)
+    read_observation, _ = prepare_tool_result_observation(agent, "read_file", content)
+
+    assert len(shell_observation) < 1200
+    assert 3900 < len(read_observation) < 4200
 
 
 def test_long_shell_output_is_clipped_and_full_output_is_saved_as_run_artifact(tmp_path):

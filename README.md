@@ -1,23 +1,33 @@
 <div align="center">
 
-# pico
+# Ponytail Coding Agent
 
-**轻量、本地、有记忆的终端 coding agent**
+**面向 AI 基础设施仓库的 Issue 修复与补丁验证系统**
 
-pico 跑在本地仓库里，接上一个模型 provider，就能读代码、跑命令、改文件、
-保留运行证据，并把有价值的上下文沉淀成本地记忆。
+Ponytail 将真实 Issue、固定仓库版本、修改范围和外部测试组织成可执行任务合同，
+让模型在本地完成定位、最小补丁、回归验证和运行证据落盘。
 
 </div>
 
 <p align="center">
-  <img src="assets/screenshots/pico-tui-intro.png" alt="pico TUI 启动界面" width="960">
+  <img src="assets/screenshots/pico-tui-intro.png" alt="Ponytail TUI 启动界面" width="960">
 </p>
 
 ---
 
-## pico 是什么
+## Ponytail 是什么
 
-pico 是一个本地终端里的 coding agent，运行在你的仓库上下文里。一次 agent 运行会被拆成几个可观察的部分：
+Ponytail 是一个 Code Agent Runtime & Evaluation Harness，重点解决 AI SDK 和 Agent 基础设施仓库中的 Provider 兼容、SSE 流式响应、usage 字段、工具协议与跨平台缺陷。一次任务按以下链路执行：
+
+```text
+历史 Issue + 修复前 commit + 失败测试
+-> 任务合同与修改范围
+-> Agent 定位与最小补丁
+-> Fail2Pass + Pass2Pass + 范围检查
+-> patch + task state + trace + report
+```
+
+Runtime 将一次运行拆成几个可观察部分：
 
 - **provider profile**：决定调用哪个模型、哪个 endpoint、用什么协议。
 - **context**：把系统提示、仓库信息、skills、记忆和最近对话装进 prompt。
@@ -26,7 +36,24 @@ pico 是一个本地终端里的 coding agent，运行在你的仓库上下文�
 - **session / run evidence**：对话、事件流、trace、report 都写到本地 `.pico/`。
 - **memory / dream**：把 daily log 整理成长期 topic，下次 session 可以继续用。
 
-pico 关注本地 coding agent 的工程边界：配置清楚、任务能续接、结果能复盘。
+Ponytail 关注的不是模型是否“声称完成”，而是补丁是否真正修复目标失败、是否破坏已有行为、是否越过改动范围，以及失败发生在哪一层。
+
+## 真实缺陷评测
+
+当前公开证据来自 [`openai/openai-agents-python`](https://github.com/openai/openai-agents-python) 的 3 个历史缺陷。模型只接收缺陷描述和固定在修复前 commit 的仓库，不接收上游补丁；成功由外部测试决定。
+
+| 任务 | 结果 | 主要问题 |
+| --- | --- | --- |
+| [Issue #3994](https://github.com/openai/openai-agents-python/issues/3994) | 通过 | 空 streamed input 在调用模型前被错误拒绝 |
+| [Issue #4144](https://github.com/openai/openai-agents-python/issues/4144) | 未通过，保留失败归因 | handoff 事件被重复发为 `tool_called` |
+| [PR #4190](https://github.com/openai/openai-agents-python/pull/4190) | 通过 | 空 session 写入触发无意义远程 Conversation 创建 |
+
+- 3 个真实上游缺陷，5 次真实模型运行，2 个任务至少成功一次。
+- 成功补丁均通过 Fail2Pass、Pass2Pass 和修改范围检查。
+- 成功补丁平均修改 1.5 个文件、14.5 行；失败运行完整保留在逐行结果中。
+- 该结果是小规模案例级修复证据，不是官方 SWE-bench 成绩，也不代表开放任务通用成功率。
+
+完整任务定义、逐行结果、汇总和脱敏补丁见 [evidence/real-issues](evidence/real-issues/README.md)。
 
 ## 界面
 
@@ -47,26 +74,26 @@ TUI 直接连接同一个 runtime。输入框、工具结果、状态栏、slash
 一键安装：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/martin-los/pico/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xiafantadi/ponytail-coding-agent/main/install.sh | bash
 ```
 
 源码安装：
 
 ```bash
-git clone https://github.com/martin-los/pico.git
-cd pico
+git clone https://github.com/xiafantadi/ponytail-coding-agent.git
+cd ponytail-coding-agent
 pip install -e .
 ```
 
 开发 checkout 里也可以直接跑：
 
 ```bash
-uv run pico
+uv run ponytail
 ```
 
 ## 配置 provider
 
-pico 启动前先解析一个 **provider profile**。一个 profile 主要由四项组成：
+Ponytail 启动前先解析一个 **provider profile**。一个 profile 主要由四项组成：
 
 | 字段 | 作用 |
 | --- | --- |
@@ -130,7 +157,7 @@ export DEEPSEEK_API_KEY=sk-...
 export DEEPSEEK_BASE_URL=https://api.deepseek.com/anthropic
 export DEEPSEEK_MODEL=deepseek-v4-pro
 
-pico
+ponytail
 ```
 
 常用 provider 变量：
@@ -157,9 +184,9 @@ export PICO_MODEL=gpt-5.4
 临时换 provider 或模型：
 
 ```bash
-pico --provider openai --model gpt-5.4 --base-url https://api.openai.com/v1
-pico --provider deepseek --approval ask --max-steps 80
-pico --config /path/to/custom.toml --cwd /path/to/repo
+ponytail --provider openai --model gpt-5.4 --base-url https://api.openai.com/v1
+ponytail --provider deepseek --approval ask --max-steps 80
+ponytail --config /path/to/custom.toml --cwd /path/to/repo
 ```
 
 完整配置说明见 [docs/configuration.md](docs/configuration.md)。
@@ -169,21 +196,21 @@ pico --config /path/to/custom.toml --cwd /path/to/repo
 常用入口：
 
 ```bash
-pico                              # 默认 Textual TUI
-pico --repl                       # 普通终端 REPL
-pico "找出测试失败的根因"          # one-shot 任务
-pico --resume latest              # 续接最近 session
-pico --cwd /path/to/repo          # 指定工作目录
+ponytail                              # 默认 Textual TUI
+ponytail --repl                       # 普通终端 REPL
+ponytail "找出测试失败的根因"        # one-shot 任务
+ponytail --resume latest              # 续接最近 session
+ponytail --cwd /path/to/repo          # 指定工作目录
 ```
 
 常用运行参数：
 
 ```bash
-pico --approval ask               # shell / 写文件前询问
-pico --approval auto              # 普通操作自动通过
-pico --approval never             # 非交互模式
-pico --sandbox best_effort        # 尽量隔离 shell 命令
-pico --no-auto-dream              # 关闭后台 memory 整合
+ponytail --approval ask               # shell / 写文件前询问
+ponytail --approval auto              # 普通操作自动通过
+ponytail --approval never             # 非交互模式
+ponytail --sandbox best_effort        # 尽量隔离 shell 命令
+ponytail --no-auto-dream              # 关闭后台 memory 整合
 ```
 
 ## 日常用法
@@ -222,9 +249,9 @@ pico --no-auto-dream              # 关闭后台 memory 整合
 | `/model <name>` | 当前 session 临时切模型。 |
 | `/compact` | 压缩较早的对话历史。 |
 | `/clear` | 开一个新的空 session。 |
-| `/exit` | 退出 pico。 |
+| `/exit` | 退出 Ponytail。 |
 
-## pico 能做什么
+## Ponytail 能做什么
 
 | 能力 | 说明 |
 | --- | --- |
@@ -318,6 +345,8 @@ PICO_LIVE_SMOKE=1 pytest tests/test_release_smoke.py -q
 | 10 | [模块学习指南](release/v3/learning/10-module-learning-guide.md) |
 | 11 | [Dream 后台记忆整合](release/v3/learning/11-dream-memory-consolidation.md) |
 
-## License
+## 兼容性与来源
 
-MIT
+Ponytail 在既有 Pico v3 Runtime 代码基础上进行二次工程开发，新增原生工具调用、最终回答门禁、最小改动策略、真实缺陷任务适配与可复算评测证据。为避免破坏已有配置和脚本，内部 Python package、数据目录以及 `pico` CLI 继续作为兼容接口保留，推荐的新入口为 `ponytail`。
+
+当前仓库未附独立开源许可证。公开或再分发前，应以原始代码授权和购买协议为准；本说明不构成额外授权。

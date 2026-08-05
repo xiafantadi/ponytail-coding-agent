@@ -12,6 +12,9 @@ from .workspace import clip
 INLINE_TOOL_OUTPUT_LIMIT = 1000
 INLINE_TOOL_OUTPUT_LIMITS = {
     "inspect_image": 12000,
+    "list_files": 2000,
+    "read_file": 4000,
+    "search": 3000,
 }
 
 

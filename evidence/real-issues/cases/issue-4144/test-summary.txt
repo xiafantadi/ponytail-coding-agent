@@ -1,0 +1,7 @@
+task_id: openai-agents-4144-handoff-stream-events
+status: fail
+Fail2Pass: False
+Pass2Pass: True
+holdout: False
+scope: True
+failure_category: patch_not_applied

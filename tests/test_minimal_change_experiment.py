@@ -4,6 +4,7 @@ from pico.evaluation.minimal_change_experiment import (
     EXPERIMENT_ARMS,
     TASK_EXECUTION_CONTRACT,
     YAGNI_NOTICE,
+    _write_patch,
     build_experiment_plan,
     build_manifest,
     prompt_for_arm,
@@ -97,3 +98,14 @@ def test_written_summary_is_reproducible_from_runs_csv(tmp_path):
     recomputed = recompute_minimal_change_summary(tmp_path / "runs.csv")
     assert written == recomputed
     assert (tmp_path / "report.md").exists()
+
+
+def test_patch_writer_ignores_line_ending_only_changes(tmp_path):
+    before = {"app.py": b"first\r\nremove\r\nlast\r\n"}
+    after = {"app.py": b"first\nlast\n"}
+
+    patch = _write_patch(before, after, tmp_path / "patch.diff").read_text(encoding="utf-8")
+
+    assert "-remove" in patch
+    assert "-first" not in patch
+    assert "+first" not in patch

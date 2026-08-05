@@ -137,7 +137,9 @@ def fixture_snapshot_id(fixture_repo: str | Path) -> str:
     for path in sorted(files, key=lambda item: item.relative_to(root).as_posix()):
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        # Git may materialize text fixtures with CRLF on Windows. Treat the
+        # checkout representation as equivalent to the frozen LF content.
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
         digest.update(b"\0")
     return "sha256:" + digest.hexdigest()
 

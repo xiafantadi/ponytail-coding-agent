@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "repository_url": "https://github.com/openai/openai-agents-python",
+  "tasks": [
+    {
+      "task_id": "openai-agents-3994-empty-stream-input",
+      "issue_url": "https://github.com/openai/openai-agents-python/issues/3994",
+      "source_type": "github_issue",
+      "base_commit": "a6cb92244211dc3845e738b2125c684906e59824",
+      "reference_pr_url": "https://github.com/openai/openai-agents-python/pull/3995",
+      "request": "Fix Runner.run_streamed so an empty list input reaches the configured model, matching Runner.run and Runner.run_sync. The failure occurs while consuming stream events and raises RuntimeError with the exact message 'Prepared model input is empty' before FakeModel receives the input. Search for that failure path before reading broad entry-point files. Add or update focused regression coverage, keep the patch minimal, and do not change unrelated behavior.",
+      "allowed_paths": [
+        "src/agents/",
+        "tests/"
+      ],
+      "fail2pass": [
+        "issue_3994_test.py"
+      ],
+      "pass2pass": [
+        "tests/test_agent_runner_streamed.py::test_simple_first_run",
+        "tests/test_agent_runner_streamed.py::test_streamed_tool_not_found_behavior_returns_error_to_model"
+      ],
+      "holdout": [
+        "issue_3994_test.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "task_id": "openai-agents-4144-handoff-stream-events",
+      "issue_url": "https://github.com/openai/openai-agents-python/issues/4144",
+      "source_type": "github_issue",
+      "base_commit": "bdc294fcd446718060b3444c2894c8b3d39fae56",
+      "reference_pr_url": "https://github.com/openai/openai-agents-python/pull/4146",
+      "request": "Fix streamed run item events so a handoff call is emitted as handoff_requested but not duplicated as tool_called. The duplicate tool_called event is emitted while raw streamed output items are handled, before the processed handoff_requested event. Ordinary function tool calls must keep their existing tool_called event. Search for the raw output branch that emits tool_called before reading broad runner entry points. Add or update focused regression coverage and avoid unrelated refactoring.",
+      "allowed_paths": [
+        "src/agents/",
+        "tests/"
+      ],
+      "fail2pass": [
+        "issue_4144_test.py"
+      ],
+      "pass2pass": [
+        "tests/test_agent_runner_streamed.py::test_simple_first_run",
+        "tests/test_agent_runner_streamed.py::test_streamed_tool_not_found_behavior_returns_error_to_model"
+      ],
+      "holdout": [
+        "issue_4144_test.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "task_id": "openai-agents-4190-empty-session-add",
+      "issue_url": "https://github.com/openai/openai-agents-python/pull/4190",
+      "source_type": "merged_pull_request",
+      "base_commit": "6e4cec5cee95adca51afd088355423d935315943",
+      "reference_pr_url": "https://github.com/openai/openai-agents-python/pull/4190",
+      "request": "Fix OpenAIConversationsSession.add_items so passing an empty list returns without lazily creating a remote conversation or calling the remote items API. An existing conversation ID must remain unchanged. Search for add_items and the lazy session-ID creation path first, add focused regression coverage, and avoid unrelated refactoring.",
+      "allowed_paths": [
+        "src/agents/",
+        "tests/"
+      ],
+      "fail2pass": [
+        "issue_4190_test.py"
+      ],
+      "pass2pass": [
+        "tests/memory/test_openai_conversations_session.py::TestOpenAIConversationsSessionBasicOperations::test_add_items_simple",
+        "tests/memory/test_openai_conversations_session.py::TestOpenAIConversationsSessionBasicOperations::test_add_items_creates_session_id"
+      ],
+      "holdout": [
+        "issue_4190_test.py"
+      ],
+      "timeout_seconds": 120
+    }
+  ]
+}

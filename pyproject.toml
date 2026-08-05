@@ -15,6 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
+ponytail = "pico.cli:main"
 pico = "pico.cli:main"
 pico-tui = "pico.tui.main:main"
 

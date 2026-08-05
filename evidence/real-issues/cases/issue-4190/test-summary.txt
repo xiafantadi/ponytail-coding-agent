@@ -1,0 +1,7 @@
+task_id: openai-agents-4190-empty-session-add
+status: pass
+Fail2Pass: True
+Pass2Pass: True
+holdout: True
+scope: True
+failure_category:

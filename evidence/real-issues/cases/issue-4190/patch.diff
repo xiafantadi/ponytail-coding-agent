@@ -1,0 +1,47 @@
+--- a/src/agents/memory/openai_conversations_session.py
++++ b/src/agents/memory/openai_conversations_session.py
+@@ -107,10 +107,10 @@
+         return all_items  # type: ignore
+ 
+     async def add_items(self, items: list[TResponseInputItem]) -> None:
+-        session_id = await self._get_session_id()
+         if not items:
+             return
+ 
++        session_id = await self._get_session_id()
+         await self._openai_client.conversations.items.create(
+             conversation_id=session_id,
+             items=items,
+--- a/tests/memory/test_openai_conversations_session.py
++++ b/tests/memory/test_openai_conversations_session.py
+@@ -231,6 +231,30 @@
+         )
+ 
+     @pytest.mark.asyncio
++    async def test_add_empty_items_does_not_create_session_id(self, mock_openai_client):
++        """Test adding no items does not create a conversation."""
++        session = OpenAIConversationsSession(openai_client=mock_openai_client)
++
++        await session.add_items([])
++
++        assert session._session_id is None
++        mock_openai_client.conversations.create.assert_not_called()
++        mock_openai_client.conversations.items.create.assert_not_called()
++
++    @pytest.mark.asyncio
++    async def test_add_empty_items_keeps_existing_session_id(self, mock_openai_client):
++        """Test adding no items leaves an existing conversation ID unchanged."""
++        session = OpenAIConversationsSession(
++            conversation_id="test_id", openai_client=mock_openai_client
++        )
++
++        await session.add_items([])
++
++        assert session._session_id == "test_id"
++        mock_openai_client.conversations.create.assert_not_called()
++        mock_openai_client.conversations.items.create.assert_not_called()
++
++    @pytest.mark.asyncio
+     async def test_pop_item_with_items(self, mock_openai_client):
+         """Test popping item when items exist using method patching."""
+         session = OpenAIConversationsSession(

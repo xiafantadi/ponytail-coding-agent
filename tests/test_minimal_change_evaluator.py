@@ -143,6 +143,18 @@ def test_fixture_snapshot_is_stable_and_source_is_unchanged(tmp_path):
     assert fixture_snapshot_id(fixture) == before
 
 
+def test_fixture_snapshot_normalizes_checkout_line_endings(tmp_path):
+    fixture = tmp_path / "fixture"
+    fixture.mkdir()
+    source = fixture / "app.py"
+    source.write_bytes(b"first\nsecond\n")
+    lf_snapshot = fixture_snapshot_id(fixture)
+
+    source.write_bytes(b"first\r\nsecond\r\n")
+
+    assert fixture_snapshot_id(fixture) == lf_snapshot
+
+
 def test_default_minimal_change_suite_has_balanced_behavioral_tasks():
     loaded = load_minimal_change_tasks()
     tasks = loaded["tasks"]

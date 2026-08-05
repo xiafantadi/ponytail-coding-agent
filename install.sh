@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="${PICO_REPO:-https://github.com/martin-los/pico.git}"
+REPO="${PICO_REPO:-https://github.com/xiafantadi/ponytail-coding-agent.git}"
 INSTALL_DIR="${PICO_INSTALL_DIR:-$HOME/.pico-agent}"
 BRANCH="${PICO_BRANCH:-main}"
 
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'
 BOLD='\033[1m'; RESET='\033[0m'
-info()    { printf "${CYAN}[pico]${RESET} %s\n" "$*"; }
-success() { printf "${GREEN}[pico]${RESET} ${BOLD}%s${RESET}\n" "$*"; }
-warn()    { printf "${YELLOW}[pico]${RESET} %s\n" "$*" >&2; }
-die()     { printf "${RED}[pico] ERROR:${RESET} %s\n" "$*" >&2; exit 1; }
+info()    { printf "${CYAN}[ponytail]${RESET} %s\n" "$*"; }
+success() { printf "${GREEN}[ponytail]${RESET} ${BOLD}%s${RESET}\n" "$*"; }
+warn()    { printf "${YELLOW}[ponytail]${RESET} %s\n" "$*" >&2; }
+die()     { printf "${RED}[ponytail] ERROR:${RESET} %s\n" "$*" >&2; exit 1; }
 
 find_python() {
     for cmd in python3.13 python3.12 python3.11 python3.10 python3 python; do
@@ -26,7 +26,7 @@ find_python() {
 
 main() {
     printf "\n${BOLD}╔══════════════════════════════════════════╗${RESET}\n"
-    printf   "${BOLD}║        pico  一键安装                    ║${RESET}\n"
+    printf   "${BOLD}║      Ponytail Coding Agent 一键安装      ║${RESET}\n"
     printf   "${BOLD}╚══════════════════════════════════════════╝${RESET}\n\n"
 
     command -v git &>/dev/null || die "找不到 git，请先安装。"
@@ -43,7 +43,7 @@ main() {
         git -C "$INSTALL_DIR" fetch --quiet origin
         git -C "$INSTALL_DIR" reset --hard "origin/${BRANCH}" --quiet
     else
-        info "克隆 pico 到 ${INSTALL_DIR} ..."
+        info "克隆 Ponytail 到 ${INSTALL_DIR} ..."
         rm -rf "$INSTALL_DIR"
         git clone --depth 1 --branch "$BRANCH" "$REPO" "$INSTALL_DIR" --quiet
     fi
@@ -60,7 +60,7 @@ main() {
 
     BIN_DIR="${PICO_BIN_DIR:-$HOME/.local/bin}"
     mkdir -p "$BIN_DIR"
-    LAUNCHER="$BIN_DIR/pico"
+    LAUNCHER="$BIN_DIR/ponytail"
 
     cat > "$LAUNCHER" <<EOF
 #!/usr/bin/env bash
@@ -69,7 +69,10 @@ EOF
     chmod +x "$LAUNCHER"
 
     printf "\n"
-    success "pico 安装完成！"
+    COMPAT_LAUNCHER="$BIN_DIR/pico"
+    cp "$LAUNCHER" "$COMPAT_LAUNCHER"
+
+    success "Ponytail 安装完成！"
     printf "\n"
 
     if ! echo "$PATH" | tr ':' '\n' | grep -qx "$BIN_DIR"; then
@@ -78,7 +81,7 @@ EOF
         printf "    ${BOLD}echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc && source ~/.bashrc${RESET}\n"
         printf "    ${BOLD}echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc  && source ~/.zshrc${RESET}\n\n"
     else
-        printf "  运行：${BOLD}pico${RESET}\n\n"
+        printf "  运行：${BOLD}ponytail${RESET}\n\n"
     fi
 
     printf "  使用前请设置 API key（三种 provider 任选一个）：\n"

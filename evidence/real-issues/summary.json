@@ -1,0 +1,79 @@
+{
+  "run_count": 5,
+  "passed_runs": 2,
+  "run_pass_rate": 0.4,
+  "task_count": 3,
+  "solved_tasks": 2,
+  "task_solve_rate": 0.6666666666666666,
+  "solved_task_ids": [
+    "openai-agents-3994-empty-stream-input",
+    "openai-agents-4190-empty-session-add"
+  ],
+  "fail2pass_passed_runs": 2,
+  "pass2pass_passed_runs": 5,
+  "holdout_passed_runs": 2,
+  "scope_passed_runs": 5,
+  "runs_with_usage": 5,
+  "failure_category_counts": {
+    "patch_not_applied": 3
+  },
+  "all_runs": {
+    "attempts": {
+      "count": 5,
+      "mean": 23.6,
+      "sum": 118
+    },
+    "tool_steps": {
+      "count": 5,
+      "mean": 27.8,
+      "sum": 139
+    },
+    "duration_ms": {
+      "count": 5,
+      "mean": 135356.742,
+      "sum": 676783.71
+    },
+    "total_tokens": {
+      "count": 5,
+      "mean": 9898,
+      "sum": 49490
+    }
+  },
+  "successful_runs": {
+    "attempts": {
+      "count": 2,
+      "mean": 20.5,
+      "sum": 41
+    },
+    "tool_steps": {
+      "count": 2,
+      "mean": 24.5,
+      "sum": 49
+    },
+    "changed_files": {
+      "count": 2,
+      "mean": 1.5,
+      "sum": 3
+    },
+    "added_lines": {
+      "count": 2,
+      "mean": 12.5,
+      "sum": 25
+    },
+    "deleted_lines": {
+      "count": 2,
+      "mean": 2,
+      "sum": 4
+    },
+    "duration_ms": {
+      "count": 2,
+      "mean": 121981.755,
+      "sum": 243963.51
+    },
+    "total_tokens": {
+      "count": 2,
+      "mean": 10214.5,
+      "sum": 20429
+    }
+  }
+}
