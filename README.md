@@ -55,6 +55,15 @@ Ponytail 关注的不是模型是否“声称完成”，而是补丁是否真�
 
 完整任务定义、逐行结果、汇总和脱敏补丁见 [evidence/real-issues](evidence/real-issues/README.md)。
 
+其他可复算与回归证据：
+
+| 证据包 | 内容 |
+| --- | --- |
+| [Minimal-change experiment](evidence/minimal-change/README.md) | 54 次策略对照、逐行结果、usage 与配对差值 |
+| [Context and memory ablations](evidence/ablations/README.md) | 上下文与记忆历史消融口径、聚合结果和边界 |
+| [Baseline](evidence/baseline/README.md) | 二次开发前的测试与真实 Provider 基线 |
+| [Current regression](evidence/regression/README.md) | 当前主分支的全量测试和静态检查结果 |
+
 ## 界面
 
 TUI 直接连接同一个 runtime。输入框、工具结果、状态栏、slash command 和补全都来自当前 session。
@@ -294,6 +303,8 @@ ponytail/
 ```
 
 ## 测试
+
+当前 `main` 在 Windows / Python 3.13 下完成全量回归：`603 passed, 3 skipped`，Ruff 全仓检查通过。执行环境、命令和 warning 说明见 [current regression evidence](evidence/regression/README.md)。
 
 ```bash
 pip install -e ".[dev]"
