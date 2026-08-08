@@ -87,6 +87,15 @@ def execute_tool_payload(engine, task_state, user_message, payload):
         "checkpoint_created",
         {"checkpoint_id": checkpoint["checkpoint_id"], "trigger": "tool_executed"},
     )
+    for hook in agent.after_tool_checkpoint_hooks:
+        hook(
+            {
+                "checkpoint_id": checkpoint["checkpoint_id"],
+                "task_state": task_state.to_dict(),
+                "tool_name": name,
+                "tool_metadata": tool_metadata,
+            }
+        )
     yield {
         "type": "tool_result",
         "run_id": task_state.run_id,

@@ -4,6 +4,7 @@ from ponytail.evaluation.minimal_change_experiment import (
     EXPERIMENT_ARMS,
     TASK_EXECUTION_CONTRACT,
     YAGNI_NOTICE,
+    _file_snapshot,
     _write_patch,
     build_experiment_plan,
     build_manifest,
@@ -69,6 +70,16 @@ def test_select_tasks_supports_count_and_explicit_ids():
 
     assert [task["task_id"] for task in select_tasks(tasks, 2)] == ["task-a", "task-b"]
     assert [task["task_id"] for task in select_tasks(tasks, "task-c,task-a")] == ["task-c", "task-a"]
+
+
+def test_file_snapshot_ignores_runtime_and_git_metadata(tmp_path):
+    (tmp_path / "app.py").write_bytes(b"VALUE = 1\n")
+    (tmp_path / ".git").mkdir()
+    (tmp_path / ".git" / "index").write_bytes(b"binary-index")
+    (tmp_path / ".pico").mkdir()
+    (tmp_path / ".pico" / "session.json").write_text("{}", encoding="utf-8")
+
+    assert _file_snapshot(tmp_path) == {"app.py": b"VALUE = 1\n"}
 
 
 def test_written_summary_is_reproducible_from_runs_csv(tmp_path):

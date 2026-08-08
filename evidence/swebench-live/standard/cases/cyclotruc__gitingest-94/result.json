@@ -1,0 +1,52 @@
+{
+  "instance_id": "cyclotruc__gitingest-94",
+  "repo": "cyclotruc/gitingest",
+  "results": {
+    "ponycode": {
+      "system": "PonyCode",
+      "instance_id": "cyclotruc__gitingest-94",
+      "repo": "cyclotruc/gitingest",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 14,
+      "tool_steps": 17,
+      "input_tokens": 81501,
+      "cached_tokens": 12288,
+      "output_tokens": 855,
+      "total_tokens": 82356,
+      "usage_source": "actual",
+      "duration_ms": 49097.72,
+      "patch_nonempty": true,
+      "changed_files": 1,
+      "added_lines": 3,
+      "deleted_lines": 1,
+      "patch_bytes": 410
+    },
+    "mini_swe_agent": {
+      "system": "mini-SWE-agent",
+      "instance_id": "cyclotruc__gitingest-94",
+      "repo": "cyclotruc/gitingest",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 6,
+      "tool_steps": 10,
+      "input_tokens": 45276,
+      "cached_tokens": 24064,
+      "output_tokens": 1330,
+      "total_tokens": 46606,
+      "usage_source": "actual",
+      "duration_ms": 39280.11,
+      "patch_nonempty": true,
+      "changed_files": 1,
+      "added_lines": 1,
+      "deleted_lines": 1,
+      "patch_bytes": 489
+    }
+  }
+}

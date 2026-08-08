@@ -1,0 +1,81 @@
+{
+  "instance_id": "amoffat__sh-744",
+  "event_count": 326,
+  "event_type_counts": {
+    "checkpoint_created": 40,
+    "context_orchestrator_decision": 24,
+    "final_readiness_decision": 1,
+    "governance_decision": 58,
+    "loop_transition": 24,
+    "memory.file_read": 24,
+    "memory.retrieval": 24,
+    "memory_auto_dream_skipped": 1,
+    "minimal_policy_applied": 24,
+    "minimality_audit_completed": 1,
+    "model_parsed": 24,
+    "model_requested": 24,
+    "prompt_built": 24,
+    "run_finished": 1,
+    "run_started": 1,
+    "runtime_identity_mismatch": 2,
+    "tool_executed": 29
+  },
+  "model_calls": 24,
+  "tool_executed_count": 29,
+  "checkpoint_created_count": 40,
+  "governance_decision_count": 58,
+  "usage": {
+    "input_tokens": 188529,
+    "cached_tokens": 17408,
+    "output_tokens": 1856,
+    "total_tokens": 190385,
+    "usage_source": "actual"
+  },
+  "report": {
+    "checkpoint_id": "ckpt_09683375",
+    "attempts": 24,
+    "changed_paths": [
+      "sh.py",
+      "tests/sh_test.py"
+    ],
+    "final_readiness": {
+      "allow_count": 0,
+      "block_count": 0,
+      "last_decision": "warn",
+      "last_reasons": [
+        "changed_paths_without_verification"
+      ],
+      "remind_count": 0,
+      "schema_version": "ponytail.final_readiness_summary.v1",
+      "warn_count": 1
+    },
+    "governance": {
+      "allow_count": 58,
+      "decision_type_counts": {
+        "permission": 29,
+        "tool_policy": 29
+      },
+      "deny_count": 0,
+      "reasons": {
+        "approval_auto": 5,
+        "policy_ok": 29,
+        "read_only": 24
+      },
+      "schema_version": "ponytail.governance_summary.v1",
+      "warn_count": 0
+    },
+    "transition": {
+      "continue_count": 23,
+      "max_attempt_index": 24,
+      "reasons": {
+        "final_answer_returned": 1,
+        "tool_batch_executed": 23
+      },
+      "schema_version": "ponytail.transition_summary.v1",
+      "terminal_count": 1,
+      "terminal_reason": "final_answer_returned",
+      "tool_executed_count": 29,
+      "tool_requested_count": 29
+    }
+  }
+}

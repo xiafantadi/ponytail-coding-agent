@@ -1,0 +1,5 @@
+instance_id,repo,base_commit,resolved,evaluation_error,test_runtime_seconds,valid_attempts,environment_incidents
+cyclotruc__gitingest-94,cyclotruc/gitingest,2125765025c65fdd2aec89856bdc095dfb0fc826,true,,0.34,1,0
+dynaconf__dynaconf-1241,dynaconf/dynaconf,105e6312f8ce3414ba0bebf88ad6e35b3953df38,true,,12.43,1,0
+amoffat__sh-744,amoffat/sh,b658ce261b56c02cb8635416d310ca8f30f4dc90,true,,54.28,1,1
+run-llama__llama_deploy-384,run-llama/llama_deploy,a8225996abf3e8c4706324fbdde2908e4dd777df,true,,25.63,1,0

@@ -1,0 +1,38 @@
+--- a/sh.py
++++ b/sh.py
+@@ -889,6 +889,9 @@
+     def __await__(self):
+         async def wait_for_completion():
+             await self.aio_output_complete.wait()
++            self.wait()
++            if self.call_args["return_cmd"]:
++                return self
+             return str(self)
+ 
+         return wait_for_completion().__await__()
+--- a/tests/sh_test.py
++++ b/tests/sh_test.py
+@@ -1728,6 +1728,23 @@
+         asyncio.run(main())
+         self.assertListEqual(alternating, [1, 2, 1, 2])
+ 
++    def test_async_return_cmd(self):
++        py = create_tmp_test(
++            """
++import time
++
++time.sleep(0.5)
++print("hello")
++"""
++        )
++
++        async def main():
++            result = await python(py.name, _async=True, _return_cmd=True)
++            self.assertIsInstance(result, sh.RunningCommand)
++            self.assertEqual(result.stdout.decode().strip(), "hello")
++
++        asyncio.run(main())
++
+     def test_async_exc(self):
+         py = create_tmp_test("""exit(34)""")
+ 

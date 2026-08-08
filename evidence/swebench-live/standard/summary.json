@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "benchmark": "SWE-bench-Live lite frozen subset",
+  "task_count": 4,
+  "by_system": {
+    "PonyCode": {
+      "tasks": 4,
+      "resolved": 3,
+      "resolution_rate": 0.75,
+      "fail2pass_passed": 3,
+      "pass2pass_passed": 3,
+      "nonempty_patches": 3,
+      "totals": {
+        "attempts": 84,
+        "tool_steps": 106,
+        "input_tokens": 685064,
+        "cached_tokens": 70656,
+        "output_tokens": 6362,
+        "total_tokens": 691426,
+        "duration_ms": 342950.66,
+        "changed_files": 5,
+        "added_lines": 35,
+        "deleted_lines": 2
+      },
+      "means": {
+        "attempts": 21.0,
+        "tool_steps": 26.5,
+        "input_tokens": 171266.0,
+        "cached_tokens": 17664.0,
+        "output_tokens": 1590.5,
+        "total_tokens": 172856.5,
+        "duration_ms": 85737.67,
+        "changed_files": 1.25,
+        "added_lines": 8.75,
+        "deleted_lines": 0.5
+      },
+      "uncached_input_tokens": 614408
+    },
+    "mini-SWE-agent": {
+      "tasks": 4,
+      "resolved": 3,
+      "resolution_rate": 0.75,
+      "fail2pass_passed": 3,
+      "pass2pass_passed": 4,
+      "nonempty_patches": 4,
+      "totals": {
+        "attempts": 32,
+        "tool_steps": 51,
+        "input_tokens": 293353,
+        "cached_tokens": 226304,
+        "output_tokens": 5930,
+        "total_tokens": 299283,
+        "duration_ms": 184514.21,
+        "changed_files": 4,
+        "added_lines": 29,
+        "deleted_lines": 7
+      },
+      "means": {
+        "attempts": 8.0,
+        "tool_steps": 12.75,
+        "input_tokens": 73338.25,
+        "cached_tokens": 56576.0,
+        "output_tokens": 1482.5,
+        "total_tokens": 74820.75,
+        "duration_ms": 46128.55,
+        "changed_files": 1.0,
+        "added_lines": 7.25,
+        "deleted_lines": 1.75
+      },
+      "uncached_input_tokens": 67049
+    }
+  },
+  "paired_outcome_agreement": 1.0,
+  "resolution_rate_delta": 0.0
+}

@@ -1,0 +1,52 @@
+{
+  "instance_id": "run-llama__llama_deploy-384",
+  "repo": "run-llama/llama_deploy",
+  "results": {
+    "ponycode": {
+      "system": "PonyCode",
+      "instance_id": "run-llama__llama_deploy-384",
+      "repo": "run-llama/llama_deploy",
+      "resolved": false,
+      "fail2pass_passed": false,
+      "pass2pass_passed": false,
+      "patch_successfully_applied": false,
+      "failure_category": "empty_patch",
+      "attempts": 21,
+      "tool_steps": 30,
+      "input_tokens": 196810,
+      "cached_tokens": 26112,
+      "output_tokens": 2143,
+      "total_tokens": 198953,
+      "usage_source": "actual",
+      "duration_ms": 93960.06,
+      "patch_nonempty": false,
+      "changed_files": 0,
+      "added_lines": 0,
+      "deleted_lines": 0,
+      "patch_bytes": 0
+    },
+    "mini_swe_agent": {
+      "system": "mini-SWE-agent",
+      "instance_id": "run-llama__llama_deploy-384",
+      "repo": "run-llama/llama_deploy",
+      "resolved": false,
+      "fail2pass_passed": false,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "fail2pass_failed",
+      "attempts": 9,
+      "tool_steps": 15,
+      "input_tokens": 104615,
+      "cached_tokens": 86016,
+      "output_tokens": 1639,
+      "total_tokens": 106254,
+      "usage_source": "actual",
+      "duration_ms": 47258.81,
+      "patch_nonempty": true,
+      "changed_files": 1,
+      "added_lines": 14,
+      "deleted_lines": 2,
+      "patch_bytes": 1686
+    }
+  }
+}

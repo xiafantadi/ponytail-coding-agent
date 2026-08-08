@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "excluded_after_gold_preflight": [],
+  "not_selected_from_candidate_queue": [
+    {
+      "instance_id": "cyclotruc__gitingest-115",
+      "reason": "lightweight task cap and repository diversity"
+    },
+    {
+      "instance_id": "hiyouga__llama-factory-7505",
+      "reason": "lightweight task cap and higher estimated verification cost"
+    },
+    {
+      "instance_id": "jazzband__tablib-613",
+      "reason": "lightweight task cap"
+    },
+    {
+      "instance_id": "icloud-photos-downloader__icloud_photos_downloader-1060",
+      "reason": "lightweight task cap and lower domain relevance"
+    }
+  ],
+  "environment_incidents": [
+    {
+      "instance_id": "amoffat__sh-744",
+      "stage": "initial_gold_smoke",
+      "reason": "Windows CRLF corrupted the Linux evaluator script and hidden test patch application.",
+      "resolution": "Force LF serialization in the external evaluator copy; the clean rerun resolved."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "tasks": [
+    {
+      "instance_id": "cyclotruc__gitingest-94",
+      "repo": "cyclotruc/gitingest",
+      "base_commit": "2125765025c65fdd2aec89856bdc095dfb0fc826",
+      "problem_statement": "Git Ingest request fails on web if the input repo url starts with \"http://\" instead of \"https://\". I think it might be related to `_parse_url` in `parse_query.py` explicitly checking for `\"https://\"`. Was this intended?"
+    },
+    {
+      "instance_id": "dynaconf__dynaconf-1241",
+      "repo": "dynaconf/dynaconf",
+      "base_commit": "105e6312f8ce3414ba0bebf88ad6e35b3953df38",
+      "problem_statement": "Using `@merge` with comma separated values does not infer type. Given `settings = Dynaconf(data=[1, 2, 3])`, running `APP_DATA=\"@merge 4,5,6\" dynaconf list -k DATA` produces `[1, 2, 3, \"4\", \"5\", \"6\"]`; the expected value is `[1, 2, 3, 4, 5, 6]`."
+    },
+    {
+      "instance_id": "amoffat__sh-744",
+      "repo": "amoffat/sh",
+      "base_commit": "b658ce261b56c02cb8635416d310ca8f30f4dc90",
+      "problem_statement": "Add a way for awaiting an asynchronous sh command to return its RunningCommand. Existing code uses `result = await sh.ssh(...)` and then reads fields such as `result.stdout`, but `RunningCommand.__await__` is hard-coded to return `str(self)`. Prefer making `_return_cmd` affect await as well as `__call__`, or provide another option that can be passed into bake."
+    },
+    {
+      "instance_id": "run-llama__llama_deploy-384",
+      "repo": "run-llama/llama_deploy",
+      "base_commit": "a8225996abf3e8c4706324fbdde2908e4dd777df",
+      "problem_statement": "The local quickstart deploys successfully, but `llamactl run --deployment QuickStart --arg message 'Hello from my shell!'` fails with `Error: 'ModelWrapper' object has no attribute 'tasks'`. The setup uses llama-deploy 0.3.4, llama-index 0.12.1, llama-index-core 0.12.1, pydantic 2.9.2, and an Azure OpenAI LLM adapter."
+    }
+  ]
+}

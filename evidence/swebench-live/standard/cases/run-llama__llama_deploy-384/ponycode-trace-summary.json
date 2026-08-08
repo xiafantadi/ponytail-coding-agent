@@ -1,0 +1,72 @@
+{
+  "instance_id": "run-llama__llama_deploy-384",
+  "event_count": 300,
+  "event_type_counts": {
+    "checkpoint_created": 38,
+    "context_orchestrator_decision": 22,
+    "governance_decision": 57,
+    "loop_transition": 22,
+    "memory.file_read": 21,
+    "memory.retrieval": 21,
+    "memory_auto_dream_skipped": 1,
+    "minimal_policy_applied": 21,
+    "minimality_audit_completed": 1,
+    "model_parsed": 21,
+    "model_requested": 21,
+    "prompt_built": 21,
+    "run_finished": 1,
+    "run_started": 1,
+    "step_limit_summary": 1,
+    "tool_executed": 30
+  },
+  "model_calls": 21,
+  "tool_executed_count": 30,
+  "checkpoint_created_count": 38,
+  "governance_decision_count": 57,
+  "usage": {
+    "input_tokens": 196810,
+    "cached_tokens": 26112,
+    "output_tokens": 2143,
+    "total_tokens": 198953,
+    "usage_source": "actual"
+  },
+  "report": {
+    "checkpoint_id": "ckpt_7bcbf30a",
+    "attempts": 21,
+    "changed_paths": [],
+    "final_readiness": {},
+    "governance": {
+      "allow_count": 54,
+      "decision_type_counts": {
+        "permission": 27,
+        "tool_policy": 27,
+        "tool_repetition": 1,
+        "tool_validation": 2
+      },
+      "deny_count": 3,
+      "last_denied_reason": "invalid_arguments",
+      "reasons": {
+        "approval_auto": 1,
+        "invalid_arguments": 2,
+        "policy_ok": 27,
+        "read_only": 26,
+        "repeated_identical_call": 1
+      },
+      "schema_version": "ponytail.governance_summary.v1",
+      "warn_count": 0
+    },
+    "transition": {
+      "continue_count": 21,
+      "max_attempt_index": 21,
+      "reasons": {
+        "step_limit_reached": 1,
+        "tool_batch_executed": 21
+      },
+      "schema_version": "ponytail.transition_summary.v1",
+      "terminal_count": 1,
+      "terminal_reason": "step_limit_reached",
+      "tool_executed_count": 30,
+      "tool_requested_count": 30
+    }
+  }
+}

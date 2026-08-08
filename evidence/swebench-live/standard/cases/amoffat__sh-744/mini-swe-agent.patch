@@ -1,0 +1,32 @@
+diff --git a/sh.py b/sh.py
+index d52d8b6..bcf54d6 100644
+--- a/sh.py
++++ b/sh.py
+@@ -886,10 +886,15 @@ class RunningCommand:
+                 except UnicodeDecodeError:
+                     return chunk
+ 
++    def _handle_exit_code_and_get_result(self):
++        if self.call_args["return_cmd"]:
++            return self
++        return str(self)
++
+     def __await__(self):
+         async def wait_for_completion():
+             await self.aio_output_complete.wait()
+-            return str(self)
++            return self._handle_exit_code_and_get_result()
+ 
+         return wait_for_completion().__await__()
+ 
+@@ -1503,8 +1508,8 @@ class Command:
+             stderr = open(str(stderr), "wb")
+ 
+         rc = self.__class__.RunningCommandCls(cmd, call_args, stdin, stdout, stderr)
+-        if rc._spawned_and_waited and not call_args["return_cmd"]:
+-            return str(rc)
++        if rc._spawned_and_waited:
++            return rc._handle_exit_code_and_get_result()
+         else:
+             return rc
+ 

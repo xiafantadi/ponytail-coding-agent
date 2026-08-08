@@ -1,0 +1,52 @@
+{
+  "instance_id": "dynaconf__dynaconf-1241",
+  "repo": "dynaconf/dynaconf",
+  "results": {
+    "ponycode": {
+      "system": "PonyCode",
+      "instance_id": "dynaconf__dynaconf-1241",
+      "repo": "dynaconf/dynaconf",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 25,
+      "tool_steps": 30,
+      "input_tokens": 218224,
+      "cached_tokens": 14848,
+      "output_tokens": 1508,
+      "total_tokens": 219732,
+      "usage_source": "actual",
+      "duration_ms": 104131.24,
+      "patch_nonempty": true,
+      "changed_files": 2,
+      "added_lines": 12,
+      "deleted_lines": 1,
+      "patch_bytes": 1075
+    },
+    "mini_swe_agent": {
+      "system": "mini-SWE-agent",
+      "instance_id": "dynaconf__dynaconf-1241",
+      "repo": "dynaconf/dynaconf",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 7,
+      "tool_steps": 10,
+      "input_tokens": 51807,
+      "cached_tokens": 40448,
+      "output_tokens": 1303,
+      "total_tokens": 53110,
+      "usage_source": "actual",
+      "duration_ms": 40553.89,
+      "patch_nonempty": true,
+      "changed_files": 1,
+      "added_lines": 6,
+      "deleted_lines": 1,
+      "patch_bytes": 749
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "benchmark": "SWE-bench-Live",
+  "dataset": {
+    "name": "SWE-bench-Live/SWE-bench-Live",
+    "split": "lite",
+    "snapshot_revision": "a637bd46829f3132e12938c8a0ca93173a977b8e",
+    "total_instances": 300
+  },
+  "evaluator": {
+    "upstream_main_commit": "70ec57e852e3f2d195790fe71f553e272c691833",
+    "python_only_commit": "ad79b850f15e33992e96f03f6e97f05ddf9aa0be",
+    "docker_version": "29.4.3",
+    "max_workers": 1,
+    "host_compatibility": "Generated shell scripts and patches are serialized with LF on Windows."
+  },
+  "selection": {
+    "seed": 20260808,
+    "eligible_instances": 26,
+    "filters": {
+      "max_gold_patch_files": 2,
+      "max_gold_patch_changed_lines": 30,
+      "max_fail_to_pass_tests": 10,
+      "max_pass_to_pass_tests": 500
+    },
+    "candidate_limit": 8,
+    "frozen_instance_count": 4,
+    "agent_outcomes_used_for_selection": false
+  },
+  "candidate_instance_ids": [
+    "cyclotruc__gitingest-94",
+    "cyclotruc__gitingest-115",
+    "dynaconf__dynaconf-1241",
+    "hiyouga__llama-factory-7505",
+    "jazzband__tablib-613",
+    "icloud-photos-downloader__icloud_photos_downloader-1060",
+    "amoffat__sh-744",
+    "run-llama__llama_deploy-384"
+  ],
+  "instances": [
+    {
+      "instance_id": "cyclotruc__gitingest-94",
+      "repo": "cyclotruc/gitingest",
+      "base_commit": "2125765025c65fdd2aec89856bdc095dfb0fc826",
+      "issue_type": "http_url_compatibility",
+      "gold_preflight_resolved": true
+    },
+    {
+      "instance_id": "dynaconf__dynaconf-1241",
+      "repo": "dynaconf/dynaconf",
+      "base_commit": "105e6312f8ce3414ba0bebf88ad6e35b3953df38",
+      "issue_type": "configuration_type_inference",
+      "gold_preflight_resolved": true
+    },
+    {
+      "instance_id": "amoffat__sh-744",
+      "repo": "amoffat/sh",
+      "base_commit": "b658ce261b56c02cb8635416d310ca8f30f4dc90",
+      "issue_type": "async_command_return_semantics",
+      "gold_preflight_resolved": true
+    },
+    {
+      "instance_id": "run-llama__llama_deploy-384",
+      "repo": "run-llama/llama_deploy",
+      "base_commit": "a8225996abf3e8c4706324fbdde2908e4dd777df",
+      "issue_type": "agent_runtime_state",
+      "gold_preflight_resolved": true
+    }
+  ],
+  "leakage_policy": {
+    "model_visible_fields": [
+      "instance_id",
+      "repo",
+      "base_commit",
+      "problem_statement"
+    ],
+    "evaluator_only_fields": [
+      "patch",
+      "test_patch",
+      "FAIL_TO_PASS",
+      "PASS_TO_PASS"
+    ]
+  }
+}

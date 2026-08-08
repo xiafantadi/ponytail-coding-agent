@@ -1,0 +1,6 @@
+instance_id=cyclotruc__gitingest-94
+resolved=True
+patch_applied=True
+fail2pass_passed=True
+pass2pass_passed=True
+failure_category=

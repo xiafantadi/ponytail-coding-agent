@@ -60,6 +60,25 @@ def test_agent_runs_tool_then_final(tmp_path):
     assert "hello.txt" in agent.session["memory"]["files"]
 
 
+def test_after_tool_checkpoint_hook_runs_after_checkpoint_is_persisted(tmp_path):
+    (tmp_path / "hello.txt").write_text("alpha\n", encoding="utf-8")
+    payloads = []
+    agent = build_agent(
+        tmp_path,
+        [
+            '<tool>{"name":"read_file","args":{"path":"hello.txt","start":1,"end":1}}</tool>',
+            "<final>Done.</final>",
+        ],
+        after_tool_checkpoint_hooks=[payloads.append],
+    )
+
+    assert agent.ask("Inspect hello.txt") == "Done."
+    assert len(payloads) == 1
+    assert payloads[0]["tool_name"] == "read_file"
+    assert payloads[0]["checkpoint_id"] in agent.session["checkpoints"]["items"]
+    assert agent.session_store.path(agent.session["id"]).is_file()
+
+
 def test_agent_updates_task_summary_on_each_request(tmp_path):
     agent = build_agent(
         tmp_path,

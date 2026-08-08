@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "checkpoint_loaded": true,
+    "false_stale_accept_count_zero": true,
+    "partial_stale": true,
+    "same_session": true,
+    "stale_path_detected": true,
+    "stale_summary_absent_from_prompt": true,
+    "summary_removed": true
+  },
+  "false_stale_accept_count": 0,
+  "resume_status": "partial-stale",
+  "stale_paths": [
+    "target.py"
+  ],
+  "stale_summary_invalidations": 1,
+  "status": "passed"
+}

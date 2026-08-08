@@ -1,0 +1,13 @@
+--- a/src/gitingest/parse_query.py
++++ b/src/gitingest/parse_query.py
+@@ -100,7 +100,9 @@
+     url = url.split(" ")[0]
+     url = unquote(url)  # Decode URL-encoded characters
+ 
+-    if not url.startswith("https://"):
++    if url.startswith("http://"):
++        url = "https://" + url[len("http://") :]
++    elif not url.startswith("https://"):
+         url = "https://" + url
+ 
+     # Extract domain and path

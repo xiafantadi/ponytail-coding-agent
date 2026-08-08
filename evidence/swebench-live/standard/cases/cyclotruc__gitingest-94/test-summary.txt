@@ -1,0 +1,2 @@
+PonyCode: resolved=True, Fail2Pass=True, Pass2Pass=True
+mini-SWE-agent: resolved=True, Fail2Pass=True, Pass2Pass=True

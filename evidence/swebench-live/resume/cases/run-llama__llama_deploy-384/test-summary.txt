@@ -1,0 +1,6 @@
+instance_id=run-llama__llama_deploy-384
+resolved=False
+patch_applied=False
+fail2pass_passed=False
+pass2pass_passed=False
+failure_category=patch_not_applied

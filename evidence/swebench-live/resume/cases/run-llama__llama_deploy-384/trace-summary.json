@@ -1,0 +1,57 @@
+{
+  "distinct_processes": true,
+  "phase1": {
+    "checkpoint_count": 5,
+    "event_counts": {
+      "checkpoint_created": 5,
+      "context_orchestrator_decision": 2,
+      "governance_decision": 10,
+      "loop_transition": 1,
+      "memory.file_read": 2,
+      "memory.retrieval": 2,
+      "minimal_policy_applied": 2,
+      "model_parsed": 2,
+      "model_requested": 2,
+      "prompt_built": 2,
+      "run_started": 1,
+      "tool_executed": 5
+    },
+    "model_parsed_count": 2,
+    "model_request_count": 2,
+    "tool_counts": {
+      "list_files": 1,
+      "search": 4
+    },
+    "tool_step_count": 5
+  },
+  "resume_status": "full-valid",
+  "resumed": {
+    "checkpoint_count": 41,
+    "event_counts": {
+      "checkpoint_created": 41,
+      "context_orchestrator_decision": 29,
+      "governance_decision": 58,
+      "loop_transition": 29,
+      "memory.file_read": 28,
+      "memory.retrieval": 28,
+      "memory_auto_dream_skipped": 1,
+      "minimal_policy_applied": 28,
+      "minimality_audit_completed": 1,
+      "model_parsed": 28,
+      "model_requested": 28,
+      "prompt_built": 28,
+      "run_finished": 1,
+      "run_started": 1,
+      "step_limit_summary": 1,
+      "tool_executed": 30
+    },
+    "model_parsed_count": 28,
+    "model_request_count": 28,
+    "tool_counts": {
+      "read_file": 24,
+      "search": 6
+    },
+    "tool_step_count": 30
+  },
+  "same_session": true
+}

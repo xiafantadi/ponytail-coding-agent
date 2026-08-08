@@ -1,0 +1,37 @@
+diff --git a/llama_deploy/client/models/model.py b/llama_deploy/client/models/model.py
+index b2ad49b..95f7e96 100644
+--- a/llama_deploy/client/models/model.py
++++ b/llama_deploy/client/models/model.py
+@@ -57,7 +57,13 @@ async def _async_gen_to_list(async_gen: AsyncGenerator[_G, None]) -> list[_G]:
+ 
+ 
+ def make_sync(_class: type[T]) -> Any:
+-    """Wraps the methods of the given model class so that they can be called without `await`."""
++    """Wraps the methods of the given model class so that they can be called without `await`.
++
++    The returned subclass must preserve descriptors defined on the wrapped class
++    (for example properties returning nested client collections like
++    ``Deployment.tasks``). Some pydantic model subclasses can otherwise miss those
++    descriptors during dynamic wrapping, so we copy them explicitly.
++    """
+ 
+     class ModelWrapper(_class):  # type: ignore
+         _instance_is_sync: bool = True
+@@ -71,10 +77,16 @@ def make_sync(_class: type[T]) -> Any:
+         return new_func
+ 
+     for name, method in _class.__dict__.items():
++        if isinstance(method, property):
++            setattr(ModelWrapper, name, method)
+         # Only wrap async public methods
+-        if inspect.isasyncgenfunction(method):
++        elif inspect.isasyncgenfunction(method):
+             setattr(ModelWrapper, name, generator_wrapper(method))
+         elif asyncio.iscoroutinefunction(method) and not name.startswith("_"):
+             setattr(ModelWrapper, name, async_to_sync(method))
+ 
++    model_rebuild = getattr(ModelWrapper, "model_rebuild", None)
++    if callable(model_rebuild):
++        model_rebuild(force=True)
++
+     return ModelWrapper

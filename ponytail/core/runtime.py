@@ -109,7 +109,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         ask_user_callback=None,
         allowed_tools=None,
         final_readiness_mode="warn",
-        before_final_hooks=None,
+        before_final_hooks=None, after_tool_checkpoint_hooks=None,
     ):
         self.model_client = model_client
         self.model_client_factory = model_client_factory
@@ -153,7 +153,7 @@ class Pico(RuntimeSecretsMixin, RuntimeCheckpointsMixin):
         self.dream_min_sessions = int(dream_min_sessions)
         self.allowed_tools = self._normalize_allowed_tools(allowed_tools)
         self.final_readiness_mode = str(final_readiness_mode or "warn")
-        self.before_final_hooks = tuple(before_final_hooks or ())
+        self.before_final_hooks, self.after_tool_checkpoint_hooks = tuple(before_final_hooks or ()), tuple(after_tool_checkpoint_hooks or ())
         self.run_store = run_store or RunStore(
             Path(workspace.repo_root) / ".pico" / "runs"
         )

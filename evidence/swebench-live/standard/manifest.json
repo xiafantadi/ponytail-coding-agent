@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "benchmark": "SWE-bench-Live",
+  "split": "lite",
+  "dataset_snapshot": "a637bd46829f3132e12938c8a0ca93173a977b8e",
+  "task_ids": [
+    "cyclotruc__gitingest-94",
+    "dynaconf__dynaconf-1241",
+    "amoffat__sh-744",
+    "run-llama__llama_deploy-384"
+  ],
+  "selection_used_agent_outcomes": false,
+  "model": "gpt-5.4",
+  "max_model_calls": 30,
+  "runs_per_task": 1,
+  "ponycode_git_head_at_run": "f91d60bcb51a12238f5c6b73a4cd285fd816944a",
+  "mini_swe_agent_version": "2.4.6",
+  "mini_swe_agent_commit": "a83fcae82d2a08f0ee0c688f9d137b3566c097f8",
+  "network_during_agent_run": "disabled for mini-SWE-agent; PonyCode prompt prohibited upstream lookup and Trace audit found zero network-like shell commands",
+  "hidden_evaluation": "post-run only",
+  "invalidated_infrastructure_runs": [
+    "initial Windows long-path copy interruption",
+    "initial patches containing .git metadata and evaluator encoding errors"
+  ],
+  "implementation_sha256": {
+    "ponytail/evaluation/swebench_live.py": "8f42ebd5856fb149fe57b2f7c76c1ca288e450037dbd557794998a14b2b4c36e",
+    "scripts/run_swebench_live_experiment.py": "845e587547e7d96bb61446b7bc8d5c48cd818be2c2f02b41f00a0906652a3ccf",
+    "scripts/run_mini_swe_agent_baseline.py": "2b643eba4d9503de7925dea018d720ae4ff33daa501dc5da93500759ace35053",
+    "benchmarks/swebench_live/tasks.json": "95db73db552f9b6ee424fc82ddf92279665241045e7548edecd4fed6ae5bdfd2"
+  }
+}

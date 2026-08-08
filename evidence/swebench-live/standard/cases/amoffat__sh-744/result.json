@@ -1,0 +1,52 @@
+{
+  "instance_id": "amoffat__sh-744",
+  "repo": "amoffat/sh",
+  "results": {
+    "ponycode": {
+      "system": "PonyCode",
+      "instance_id": "amoffat__sh-744",
+      "repo": "amoffat/sh",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 24,
+      "tool_steps": 29,
+      "input_tokens": 188529,
+      "cached_tokens": 17408,
+      "output_tokens": 1856,
+      "total_tokens": 190385,
+      "usage_source": "actual",
+      "duration_ms": 95761.64,
+      "patch_nonempty": true,
+      "changed_files": 2,
+      "added_lines": 20,
+      "deleted_lines": 0,
+      "patch_bytes": 1001
+    },
+    "mini_swe_agent": {
+      "system": "mini-SWE-agent",
+      "instance_id": "amoffat__sh-744",
+      "repo": "amoffat/sh",
+      "resolved": true,
+      "fail2pass_passed": true,
+      "pass2pass_passed": true,
+      "patch_successfully_applied": true,
+      "failure_category": "",
+      "attempts": 10,
+      "tool_steps": 16,
+      "input_tokens": 91655,
+      "cached_tokens": 75776,
+      "output_tokens": 1658,
+      "total_tokens": 93313,
+      "usage_source": "actual",
+      "duration_ms": 57421.4,
+      "patch_nonempty": true,
+      "changed_files": 1,
+      "added_lines": 8,
+      "deleted_lines": 3,
+      "patch_bytes": 1013
+    }
+  }
+}

@@ -60,6 +60,17 @@ PonyCode 关注的不是模型是否“声称完成”，而是补丁是否真�
 | [Baseline](evidence/baseline/README.md) | 二次开发前的测试与真实 Provider 基线 |
 | [Current regression](evidence/regression/README.md) | 当前主分支的全量测试和静态检查结果 |
 
+## SWE-bench-Live 轻量评测
+
+在固定的 SWE-bench-Live `lite` 四题子集上，PonyCode 使用真实模型完成单次修复并接受官方容器终验：
+
+- PonyCode 与固定版本 mini-SWE-agent 均解决 `3/4`，PonyCode 的 Fail2Pass / Pass2Pass 为 `3/4`。
+- 四题均在 Agent 运行前冻结；正确补丁、隐藏测试和 Fail2Pass / Pass2Pass 列表不进入 Prompt、Memory 或工作区。
+- 两个按实例 ID 哈希固定选择的任务完成真实跨进程恢复：第一进程在第 5 个成功工具步骤及 checkpoint 落盘后终止，第二进程加载同一 Session 继续，`2/2` 正常结束、官方解决 `1/2`。
+- 单独的记忆新鲜度探针识别出 `partial-stale`，使 1 条过期文件摘要失效，误信过期状态为 `0`。
+
+这是求职规模的固定子集实验，不是完整榜单成绩，也不证明相对基线具有效率优势。任务清单、逐行结果、补丁和脱敏 Trace 摘要见 [SWE-bench-Live evidence](evidence/swebench-live/README.md)。
+
 ## 安装
 
 要求：Python 3.10+，以及至少一个可用的模型 provider key。
@@ -194,7 +205,7 @@ ponytail/
 
 ## 测试
 
-当前 `main` 在 Windows / Python 3.13 下完成全量回归：`603 passed, 3 skipped`，Ruff 全仓检查通过。执行环境、命令和 warning 说明见 [current regression evidence](evidence/regression/README.md)。
+当前工作树在 Windows / Python 3.13 下完成全量回归：`617 passed, 3 skipped`，Ruff 全仓检查通过。执行环境、命令和 warning 说明见 [current regression evidence](evidence/regression/README.md)。
 
 ```bash
 pip install -e ".[dev]"

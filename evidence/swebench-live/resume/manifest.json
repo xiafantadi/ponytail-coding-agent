@@ -1,0 +1,45 @@
+{
+  "created_at": "2026-08-08T12:12:58.170255+00:00",
+  "dataset_snapshot": "a637bd46829f3132e12938c8a0ca93173a977b8e",
+  "implementation_files": {
+    "ponytail/core/engine_helpers.py": "6d92988aaa6165999f7d93c92d6dc3f6c10cd80fe52c4f9aa4c952417c1130b1",
+    "ponytail/core/runtime.py": "960688822ab71ae05b68dd9bdaf69faa8da7dac4d461b6bc9ed75e1118717c2c",
+    "ponytail/evaluation/swebench_live.py": "0f56bb0ec85b4d0ae73d18649f2a53be5f2499123c9a33cb30c757e72dd092b8",
+    "scripts/run_swebench_live_resume_experiment.py": "d5e81f2ae5caa39b0310f71bd86c4f1d660b7c25bf658198c81ad9e38b0ebfb8"
+  },
+  "interrupt_after_successful_tools": 5,
+  "max_steps": 30,
+  "model": "gpt-5.4",
+  "provider": "openai",
+  "run_id": "ponycode-resume-light-v1-gpt54-r1",
+  "suite_id": "swebench-live-resume-light-v1",
+  "summary": {
+    "cumulative_budget_passed": 2,
+    "distinct_processes": 2,
+    "empty_patches": 1,
+    "evaluation_errors": 0,
+    "fail2pass_passed": 1,
+    "false_stale_accept_count": 0,
+    "full_valid_resumes": 2,
+    "mean_attempts": 28.0,
+    "mean_duration_ms": 112228.79,
+    "mean_tool_steps": 33.0,
+    "mean_total_tokens": 231730.0,
+    "pass2pass_passed": 1,
+    "per_turn_budget_passed": 2,
+    "repeated_reads_after_resume": 6,
+    "resolution_rate": 0.5,
+    "resolved": 1,
+    "resume_completed": 2,
+    "resume_resolved": 1,
+    "resume_triggered": 2,
+    "runs": 2,
+    "runtime_completed": 2,
+    "stale_summary_invalidations": 0
+  },
+  "task_ids": [
+    "cyclotruc__gitingest-94",
+    "run-llama__llama_deploy-384"
+  ],
+  "task_selection": "sha256(instance_id)"
+}

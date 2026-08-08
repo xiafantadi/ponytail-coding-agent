@@ -126,7 +126,7 @@ def prompt_for_arm(task, arm):
 def _file_snapshot(root):
     snapshot = {}
     root = Path(root)
-    ignored = {".pico", ".pytest_cache", "__pycache__"}
+    ignored = {".git", ".pico", ".pytest_cache", "__pycache__"}
     for path in root.rglob("*"):
         if not path.is_file() or ignored.intersection(path.relative_to(root).parts):
             continue
@@ -167,14 +167,26 @@ def _build_provider_args(*, provider, model, config, base_url, api_key, timeout)
     )
 
 
-def _build_agent(task, workspace, output_root, provider_args, arm, max_steps):
-    client = build_model_client(provider_args)
+def _build_agent(
+    task,
+    workspace,
+    output_root,
+    provider_args,
+    arm,
+    max_steps,
+    *,
+    model_client=None,
+    session=None,
+    after_tool_checkpoint_hooks=None,
+):
+    client = model_client or build_model_client(provider_args)
     session_root = workspace / ".pico" / "sessions"
     run_store_root = workspace / ".pico" / "runs"
     agent = Pico(
         model_client=client,
         workspace=WorkspaceContext.build(workspace, repo_root_override=workspace),
         session_store=SessionStore(session_root),
+        session=session,
         run_store=RunStore(run_store_root),
         approval_policy="auto",
         max_steps=max_steps,
@@ -183,6 +195,7 @@ def _build_agent(task, workspace, output_root, provider_args, arm, max_steps):
         allowed_tools=task["allowed_tools"],
         write_scope=task["allowed_change_paths"],
         final_readiness_mode="warn",
+        after_tool_checkpoint_hooks=after_tool_checkpoint_hooks,
     )
     # Experiment runs must not inherit user or project Skill files.
     agent.skills = {}
